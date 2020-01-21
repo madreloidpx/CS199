@@ -1,0 +1,206 @@
+# depslib dependency file v1.0
+1443062817 source:e:\code_blocks\fast_percolate\main.cpp
+	<stdio.h>
+	<iostream>
+	<fstream>
+	<sstream>
+	<ctime>
+	<string>
+	<vector>
+	<set>
+	<list>
+	<utility>
+	<algorithm>
+	<math.h>
+	<numeric>
+	<string>
+	"Graph.h"
+	"SubGraph.h"
+	"Percolate.h"
+
+1427769404 e:\code_blocks\fast_percolate\graph.h
+	<iostream>
+	<fstream>
+	<string>
+	<vector>
+	<utility>
+	<set>
+	<map>
+	<algorithm>
+
+1421838675 e:\code_blocks\fast_percolate\subgraph.h
+	<iostream>
+	<vector>
+	<string>
+	<list>
+	<utility>
+	"Graph.h"
+
+1421838432 e:\code_blocks\fast_percolate\percolate.h
+	<iostream>
+	<string>
+	<vector>
+	<set>
+	<map>
+	<utility>
+
+1442566787 source:e:\code_blocks\fast_percolate\percolate.cpp
+	"Percolate.h"
+	"Graph.h"
+	<iostream>
+	<string>
+	<fstream>
+	<vector>
+	<set>
+	<map>
+	<algorithm>
+	<math.h>
+
+1421838763 source:e:\code_blocks\fast_percolate\subgraph.cpp
+	<stdio.h>
+	<iostream>
+	<vector>
+	<set>
+	<utility>
+	<assert.h>
+	<math.h>
+	<algorithm>
+	<time.h>
+	"SubGraph.h"
+
+1421727383 source:e:\code_blocks\fast_percolate\graph.cpp
+	"Graph.h"
+
+1421727383 source:c:\users\administrator\desktop\fast_percolate\graph.cpp
+	"Graph.h"
+
+1427769404 c:\users\administrator\desktop\fast_percolate\graph.h
+	<iostream>
+	<fstream>
+	<string>
+	<vector>
+	<utility>
+	<set>
+	<map>
+	<algorithm>
+
+1421838763 source:c:\users\administrator\desktop\fast_percolate\subgraph.cpp
+	<stdio.h>
+	<iostream>
+	<vector>
+	<set>
+	<utility>
+	<assert.h>
+	<math.h>
+	<algorithm>
+	<time.h>
+	"SubGraph.h"
+
+1421838675 c:\users\administrator\desktop\fast_percolate\subgraph.h
+	<iostream>
+	<vector>
+	<string>
+	<list>
+	<utility>
+	"Graph.h"
+
+1442566787 source:c:\users\administrator\desktop\fast_percolate\percolate.cpp
+	"Percolate.h"
+	"Graph.h"
+	<iostream>
+	<string>
+	<fstream>
+	<vector>
+	<set>
+	<map>
+	<algorithm>
+	<math.h>
+
+1421838432 c:\users\administrator\desktop\fast_percolate\percolate.h
+	<iostream>
+	<string>
+	<vector>
+	<set>
+	<map>
+	<utility>
+
+1421727383 source:c:\users\administrator\desktop\w-cpm\fast_percolate\graph.cpp
+	"Graph.h"
+
+1457611616 c:\users\administrator\desktop\w-cpm\fast_percolate\graph.h
+	<iostream>
+	<fstream>
+	<sstream>
+	<string>
+	<vector>
+	<utility>
+	<set>
+	<map>
+	<algorithm>
+
+1470384870 source:c:\users\administrator\desktop\w-cpm\fast_percolate\main.cpp
+	<stdio.h>
+	<iostream>
+	<fstream>
+	<sstream>
+	<ctime>
+	<string>
+	<vector>
+	<set>
+	<list>
+	<utility>
+	<algorithm>
+	<math.h>
+	<numeric>
+	<string>
+	"Graph.h"
+	"SubGraph.h"
+	"Percolate.h"
+	"pajek.h"
+
+1421838675 c:\users\administrator\desktop\w-cpm\fast_percolate\subgraph.h
+	<iostream>
+	<vector>
+	<string>
+	<list>
+	<utility>
+	"Graph.h"
+
+1421838432 c:\users\administrator\desktop\w-cpm\fast_percolate\percolate.h
+	<iostream>
+	<string>
+	<vector>
+	<set>
+	<map>
+	<utility>
+
+1421838763 source:c:\users\administrator\desktop\w-cpm\fast_percolate\subgraph.cpp
+	<stdio.h>
+	<iostream>
+	<vector>
+	<set>
+	<utility>
+	<assert.h>
+	<math.h>
+	<algorithm>
+	<time.h>
+	"SubGraph.h"
+
+1453289622 source:c:\users\administrator\desktop\w-cpm\fast_percolate\percolate.cpp
+	"Percolate.h"
+	"Graph.h"
+	<iostream>
+	<string>
+	<fstream>
+	<vector>
+	<set>
+	<map>
+	<algorithm>
+	<math.h>
+
+1453294231 c:\users\administrator\desktop\w-cpm\fast_percolate\pajek.h
+	<iostream>
+	<ostream>
+	<vector>
+	"Graph.h"
+
