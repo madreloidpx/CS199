@@ -52,22 +52,31 @@ def getNodeStrength(graph, node):
     all_neighbors = nx.all_neighbors(graph, node)
     return len(list(all_neighbors)) - len(list(neighbors))
 
-def numCommonNeighbors(graph, source, drain):
+def weakClique(graph, source, drain):
     neighborSource = list(nx.neighbors(graph, source))
     neighborDrain = list(nx.neighbors(graph, drain))
     allNeighborSource = list(nx.all_neighbors(graph, source))
     incomingLinkSource = [node for node in allNeighborSource if node not in neighborSource]
     commonNeighbors = [node for node in neighborDrain if node in incomingLinkSource]
-    return len(commonNeighbors)
+    return [source] + commonNeighbors + [drain]
+
+def weakCliqueSize(graph, nodePair):
+    source, drain = nodePair
+    return len(weakClique(graph, source, drain))
 
 if __name__ == '__main__':
     data = readFile("test.txt", '\t')
-    print(data)
     edgeData = createEdgeData(data)
-    print(edgeData)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
     nodes = list(nx.nodes(graph))
+    nodes = sorted(nodes, key=lambda node: getNodeStrength(graph, node), reverse=True)
+    nodePairs = []
+    for node in nodes:
+        for neighbor in nx.neighbors(graph, node):
+            nodePairs.append((node, neighbor))
+    nodePairs = sorted(nodePairs, key=lambda nodePair: weakCliqueSize(graph, nodePair), reverse=True)
+    print(nodePairs)
     # for i in range(1, len(nodes)):
     #     print(numCommonNeighbors(graph, nodes[0], nodes[i]))
     # for node in nodes:
