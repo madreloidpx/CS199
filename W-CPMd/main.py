@@ -77,17 +77,4 @@ if __name__ == '__main__':
             nodePairs.append((node, neighbor))
     nodePairs = sorted(nodePairs, key=lambda nodePair: weakCliqueSize(graph, nodePair), reverse=True)
     print(nodePairs)
-    # for i in range(1, len(nodes)):
-    #     print(numCommonNeighbors(graph, nodes[0], nodes[i]))
-    # for node in nodes:
-    #     print("neighbors", node)
-    #     for i in nx.neighbors(graph, node): #only those pointing to
-    #         print(i)
-    #     print("all neighbors", node)
-    #     for i in nx.all_neighbors(graph, node): #opposite from directed included
-    #         print(i)
-    #     print("non neighbors", node)
-    #     for i in nx.non_neighbors(graph, node): #only non neighbors from pointing
-    #         print(i)
-    #     print("node strength", node, getNodeStrength(graph, node)) #get node strength
     showGraph(graph)
