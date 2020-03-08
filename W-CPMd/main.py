@@ -20,14 +20,12 @@ def createEdgeData(data):
 
 def createUndirectedGraph(graphData):
     print("Undirected Network")
-    print(graphData)
     G = nx.Graph()
     G.add_edges_from(graphData["edge_data"])
     return G
 
 def createMultiDiGraph(graphData):
     print("Directed Network")
-    print(graphData)
     G = nx.MultiDiGraph()
     G.add_edges_from(graphData["edge_data"])
     return G
@@ -52,7 +50,8 @@ def getNodeStrength(graph, node):
     all_neighbors = nx.all_neighbors(graph, node)
     return len(list(all_neighbors)) - len(list(neighbors))
 
-def weakClique(graph, source, drain):
+def weakClique(graph, nodePair):
+    source, drain = nodePair
     neighborSource = list(nx.neighbors(graph, source))
     neighborDrain = list(nx.neighbors(graph, drain))
     allNeighborSource = list(nx.all_neighbors(graph, source))
@@ -60,9 +59,9 @@ def weakClique(graph, source, drain):
     commonNeighbors = [node for node in neighborDrain if node in incomingLinkSource]
     return [source] + commonNeighbors + [drain]
 
-def weakCliqueSize(graph, nodePair):
-    source, drain = nodePair
-    return len(weakClique(graph, source, drain))
+def getWeakCliqueLinks(weakClique):
+    sourceLinks = [(weakClique[0], i) for i in weakClique[:-1]]
+    print(sourceLinks)
 
 if __name__ == '__main__':
     data = readFile("test.txt", '\t')
@@ -70,11 +69,18 @@ if __name__ == '__main__':
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
     nodes = list(nx.nodes(graph))
-    nodes = sorted(nodes, key=lambda node: getNodeStrength(graph, node), reverse=True)
     nodePairs = []
     for node in nodes:
         for neighbor in nx.neighbors(graph, node):
             nodePairs.append((node, neighbor))
-    nodePairs = sorted(nodePairs, key=lambda nodePair: weakCliqueSize(graph, nodePair), reverse=True)
+    weakCliques = [wq for wq in [weakClique(graph, np) for np in nodePairs]]
+    weakCliques = sorted(weakCliques, key=len, reverse=True)
+    for wq in range(len(weakCliques)):
+        for i in weakCliques[wq+1:]:
+            print("comparing", weakCliques[wq], i)
+            if all(node in weakCliques[wq] for node in i):
+                print("deleting", i)
+                weakCliques.remove(i)
+    print(weakCliques)
     print(nodePairs)
     showGraph(graph)
