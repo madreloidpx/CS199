@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 def readFile(filename, delimiter=","):
     f = open(filename, "r")
@@ -38,13 +39,6 @@ def createGraph(graphData, mode="undirected"):
     func = chooseMode.get(mode, lambda: "Invalid network type")
     return func(graphData)
 
-def showGraph(graph):
-    pos = nx.spring_layout(graph)
-    nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), node_size = 500)
-    nx.draw_networkx_labels(graph, pos)
-    nx.draw_networkx_edges(graph, pos, edgelist=graph.edges(), arrows=True)
-    plt.show()
-
 def getNodeStrength(graph, node):
     neighbors = nx.neighbors(graph, node)
     all_neighbors = nx.all_neighbors(graph, node)
@@ -76,7 +70,6 @@ def getCommonNodes(u, v):
     return commonNodes
 
 def shouldWeakCliqueMerge(graph, WQu, WQv, threshold):
-    print("---")
     commonNodes = getCommonNodes(WQu, WQv)
     if len(commonNodes) == 0:
         return False
@@ -85,8 +78,6 @@ def shouldWeakCliqueMerge(graph, WQu, WQv, threshold):
     outWQuInWQv = getCommonNodes(outWQu, WQv)
     outWQvInWQu = getCommonNodes(outWQv, WQu)
     mergeComputation = (len(commonNodes) + (len(outWQuInWQv) + len(outWQvInWQu))/2)/max(len(WQu), len(WQv))
-    print("weak cliques:", WQu, WQv)
-    print("merge computation:", mergeComputation)
     if(threshold <= mergeComputation):
         return True
     return False
@@ -111,8 +102,41 @@ def runMerge(graph, weakCliques, threshold, communities = []):
         communities.append(currentWQ)
     return runMerge(graph, weakCliques, threshold, communities)
 
+def colorGraph(graph, communities):
+    overlappingNodes = set()
+    edgeCommunities = []
+    pos = nx.spring_layout(graph)
+    for i in range(len(communities)):
+        if len(communities[i]) <= 2:
+            edgeCommunities.append((communities[i][0], communities[i][1]))
+            continue
+        for j in range(i+1, len(communities)):
+            if len(communities[j]) <= 2:
+                if i == len(communities)-1:
+                    edgeCommunities.append((communities[j][0], communities[j][1]))
+                continue
+            intersection = (set(communities[i])).intersection(set(communities[j]))
+            overlappingNodes = overlappingNodes.union(intersection)
+        nodesToColor = [node for node in communities[i] if node not in overlappingNodes]
+        nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = randomColor())
+    overlappingNodes = list(overlappingNodes)
+    if len(edgeCommunities) != 0:
+        nx.draw_networkx_edges(graph, pos, edgelist=edgeCommunities, edge_color=randomColor(), arrows=True)
+    if len(overlappingNodes) != 0:
+        nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = randomColor())
+    plainEdges = [edge for edge in graph.edges() if edge not in edgeCommunities]
+    nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = randomColor())
+    nx.draw_networkx_edges(graph, pos, edgelist=plainEdges, edge_color=randomColor(), arrows=True)
+    nx.draw_networkx_labels(graph, pos)
+    plt.show()
+    return graph
+
+def randomColor():
+    color = lambda: random.randint(0,255)
+    return '#%02X%02X%02X' % (color(),color(),color())
+
 if __name__ == '__main__':
-    data = readFile("karate_edges_77.txt", '\t')
+    data = readFile("test1.txt", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
@@ -128,8 +152,7 @@ if __name__ == '__main__':
         for i in weakCliques[wq+1:]:
             if all(node in weakCliques[wq] for node in i):
                 weakCliques.remove(i)
-    print("---")
-    print(weakCliques)
-    communities = runMerge(graph, weakCliques, 0.2)
-    print(communities)
-    showGraph(graph)
+    print("weak cliques:", weakCliques)
+    communities = runMerge(graph, weakCliques, 0.7)
+    print("communities:", communities)
+    graph = colorGraph(graph, communities)
