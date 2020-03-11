@@ -68,9 +68,12 @@ def getOutsideCommunityLinks(graph, weakClique):
                 outsideLinks.append(n)
     return outsideLinks
 
-def getWeakCliqueLinks(weakClique):
-    sourceLinks = [(weakClique[0], i) for i in weakClique[:-1]]
-    print(sourceLinks)
+def getCommonNodes(u, v):
+    commonNodes = []
+    for node in u:
+        if node in v:
+            commonNodes.append(node)
+    return commonNodes
 
 if __name__ == '__main__':
     data = readFile("test2.txt", '\t')
@@ -91,4 +94,7 @@ if __name__ == '__main__':
     print(weakCliques)
     for wq in weakCliques:
         print(getOutsideCommunityLinks(graph, wq))
+    for i in range(len(weakCliques)-1):
+        for j in range(i+1, len(weakCliques)):
+            print("common nodes of", weakCliques[i], "and", weakCliques[j], ":", getCommonNodes(weakCliques[i], weakCliques[j]))
     showGraph(graph)
