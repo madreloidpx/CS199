@@ -75,8 +75,41 @@ def getCommonNodes(u, v):
             commonNodes.append(node)
     return commonNodes
 
+def shouldWeakCliqueMerge(graph, WQu, WQv, threshold):
+    commonNodes = getCommonNodes(WQu, WQv)
+    outWQu = getOutsideCommunityLinks(graph, WQu)
+    outWQv = getOutsideCommunityLinks(graph, WQv)
+    outWQuInWQv = getCommonNodes(outWQu, WQv)
+    outWQvInWQu = getCommonNodes(outWQv, WQu)
+    mergeComputation = (len(commonNodes) + (len(outWQuInWQv) + len(outWQvInWQu))/2)/max(len(WQu), len(WQv))
+    print("merge computation:", mergeComputation)
+    if(threshold <= mergeComputation):
+        return True
+    return False
+
+def weakCliqueMerge(WQu, WQv):
+    diff = set(WQv) - set(WQu)
+    print(set(WQu).union(diff))
+    return list(set(WQu).union(diff))
+
+def runMerge(graph, weakCliques, threshold, communities = []):
+    if len(weakCliques) == 0:
+        return communities
+    currentWQ = weakCliques.pop()
+    isCommunity = True
+    for wq in weakCliques:
+        if shouldWeakCliqueMerge(graph, currentWQ, wq, threshold) == True:
+            currentWQ = weakCliqueMerge(currentWQ, wq)
+            weakCliques.remove(wq)
+            isCommunity = False
+    if isCommunity == False:
+        weakCliques.insert(0, currentWQ)
+    else:
+        communities.append(currentWQ)
+    return runMerge(graph, weakCliques, threshold, communities)
+
 if __name__ == '__main__':
-    data = readFile("test2.txt", '\t')
+    data = readFile("test1.txt", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
@@ -92,9 +125,6 @@ if __name__ == '__main__':
             if all(node in weakCliques[wq] for node in i):
                 weakCliques.remove(i)
     print(weakCliques)
-    for wq in weakCliques:
-        print(getOutsideCommunityLinks(graph, wq))
-    for i in range(len(weakCliques)-1):
-        for j in range(i+1, len(weakCliques)):
-            print("common nodes of", weakCliques[i], "and", weakCliques[j], ":", getCommonNodes(weakCliques[i], weakCliques[j]))
+    communities = runMerge(graph, weakCliques, 0.7)
+    print(communities)
     showGraph(graph)
