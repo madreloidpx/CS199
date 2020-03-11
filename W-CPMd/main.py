@@ -95,7 +95,7 @@ def weakCliqueMerge(WQu, WQv):
 def runMerge(graph, weakCliques, threshold, communities = []):
     if len(weakCliques) == 0:
         return communities
-    currentWQ = weakCliques.pop()
+    currentWQ = weakCliques.pop(0)
     isCommunity = True
     for wq in weakCliques:
         if shouldWeakCliqueMerge(graph, currentWQ, wq, threshold) == True:
@@ -109,11 +109,12 @@ def runMerge(graph, weakCliques, threshold, communities = []):
     return runMerge(graph, weakCliques, threshold, communities)
 
 if __name__ == '__main__':
-    data = readFile("test1.txt", '\t')
+    data = readFile("test3.txt", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
     nodes = list(nx.nodes(graph))
+    nodes = sorted(nodes, key=lambda node: getNodeStrength(graph, node), reverse=True)
     nodePairs = []
     for node in nodes:
         for neighbor in nx.neighbors(graph, node):
