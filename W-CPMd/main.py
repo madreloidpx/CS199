@@ -59,12 +59,21 @@ def weakClique(graph, nodePair):
     commonNeighbors = [node for node in neighborDrain if node in incomingLinkSource]
     return [source] + commonNeighbors + [drain]
 
+def getOutsideCommunityLinks(graph, weakClique):
+    outsideLinks = []
+    for node in weakClique:
+        neighbors = list(nx.neighbors(graph, node))
+        for n in neighbors:
+            if n not in weakClique and n not in outsideLinks:
+                outsideLinks.append(n)
+    return outsideLinks
+
 def getWeakCliqueLinks(weakClique):
     sourceLinks = [(weakClique[0], i) for i in weakClique[:-1]]
     print(sourceLinks)
 
 if __name__ == '__main__':
-    data = readFile("test.txt", '\t')
+    data = readFile("test2.txt", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
@@ -77,10 +86,9 @@ if __name__ == '__main__':
     weakCliques = sorted(weakCliques, key=len, reverse=True)
     for wq in range(len(weakCliques)):
         for i in weakCliques[wq+1:]:
-            print("comparing", weakCliques[wq], i)
             if all(node in weakCliques[wq] for node in i):
-                print("deleting", i)
                 weakCliques.remove(i)
     print(weakCliques)
-    print(nodePairs)
+    for wq in weakCliques:
+        print(getOutsideCommunityLinks(graph, wq))
     showGraph(graph)
