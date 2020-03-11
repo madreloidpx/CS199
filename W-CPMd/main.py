@@ -76,12 +76,16 @@ def getCommonNodes(u, v):
     return commonNodes
 
 def shouldWeakCliqueMerge(graph, WQu, WQv, threshold):
+    print("---")
     commonNodes = getCommonNodes(WQu, WQv)
+    if len(commonNodes) == 0:
+        return False
     outWQu = getOutsideCommunityLinks(graph, WQu)
     outWQv = getOutsideCommunityLinks(graph, WQv)
     outWQuInWQv = getCommonNodes(outWQu, WQv)
     outWQvInWQu = getCommonNodes(outWQv, WQu)
     mergeComputation = (len(commonNodes) + (len(outWQuInWQv) + len(outWQvInWQu))/2)/max(len(WQu), len(WQv))
+    print("weak cliques:", WQu, WQv)
     print("merge computation:", mergeComputation)
     if(threshold <= mergeComputation):
         return True
@@ -89,7 +93,6 @@ def shouldWeakCliqueMerge(graph, WQu, WQv, threshold):
 
 def weakCliqueMerge(WQu, WQv):
     diff = set(WQv) - set(WQu)
-    print(set(WQu).union(diff))
     return list(set(WQu).union(diff))
 
 def runMerge(graph, weakCliques, threshold, communities = []):
@@ -109,7 +112,7 @@ def runMerge(graph, weakCliques, threshold, communities = []):
     return runMerge(graph, weakCliques, threshold, communities)
 
 if __name__ == '__main__':
-    data = readFile("test3.txt", '\t')
+    data = readFile("karate_edges_77.txt", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
@@ -125,7 +128,8 @@ if __name__ == '__main__':
         for i in weakCliques[wq+1:]:
             if all(node in weakCliques[wq] for node in i):
                 weakCliques.remove(i)
+    print("---")
     print(weakCliques)
-    communities = runMerge(graph, weakCliques, 0.7)
+    communities = runMerge(graph, weakCliques, 0.2)
     print(communities)
     showGraph(graph)
