@@ -136,7 +136,7 @@ def randomColor():
     return '#%02X%02X%02X' % (color(),color(),color())
 
 if __name__ == '__main__':
-    data = readFile("test1.txt", '\t')
+    data = readFile("test3.txt", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     graph = createGraph(graphData, "directed")
