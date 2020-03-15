@@ -102,31 +102,3 @@ class Graph:
     def weakCliqueMerge(self, WQu, WQv):
         diff = set(WQv) - set(WQu)
         return list(set(WQu).union(diff))
-
-def readFile(filename, delimiter=","):
-    f = open(filename, "r")
-    data = []
-    for line in f:
-        contents = line.split(delimiter)
-        for i in range(len(contents)):
-                contents[i] = contents[i].strip()
-        data.append(contents)
-    return data
-
-def createEdgeData(data):
-    edges = []
-    for line in data:
-        if len(line) == 2: edges.append((line[0], line[1]))
-        if len(line) == 3: edges.append((line[0], line[1], line[2]))
-    return edges
-
-if __name__ == '__main__':
-    data = readFile("test3.txt", '\t')
-    edgeData = createEdgeData(data)
-    graphData = {"edge_data": edgeData}
-    graph = Graph(graphData, "directed")
-    print("nodes:", graph.nodes)
-    print("edges:", graph.edges)
-    print("weak cliques:", graph.weakCliques)
-    communities = graph.getCommunities(0.7)
-    print("communities:", communities)
