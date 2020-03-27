@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+import sys
 import graph
 
 def readFile(filename, delimiter=","):
@@ -39,7 +40,7 @@ def createGraph(graph, communities):
         nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = randomColor())
     overlappingNodes = list(overlappingNodes)
     if len(edgeCommunities) != 0:
-        nx.draw_networkx_edges(graph, pos, edgelist=edgeCommunities, edge_color=randomColor(), arrows=True)
+        nx.draw_networkx_edges(graph, pos, edgelist=edgeCommunities, edge_color="black", arrows=True)
     if len(overlappingNodes) != 0:
         nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = randomColor())
     plainEdges = [edge for edge in graph.edges() if edge not in edgeCommunities]
@@ -53,17 +54,21 @@ def randomColor():
     return '#%02X%02X%02X' % (color(),color(),color())
 
 if __name__ == '__main__':
-    data = readFile("test3.txt", '\t')
+    sys.setrecursionlimit(2000)
+    data = readFile("network.nsa", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     G = graph.Graph(graphData, "directed")
-    communities_50 = G.getCommunities(0.5)
-    communities_60 = G.getCommunities(0.6)
-    communities_70 = G.getCommunities(0.7)
-    communities_80 = G.getCommunities(0.8)
-    communities_90 = G.getCommunities(0.9)
-    createGraph(G.graph, communities_50)
-    createGraph(G.graph, communities_60)
-    createGraph(G.graph, communities_70)
-    createGraph(G.graph, communities_80)
-    createGraph(G.graph, communities_90)
+    communities = G.getCommunities(0.2)
+    print("Number of communities:", len(communities))
+    # communities_50 = G.getCommunities(0.5)
+    # communities_60 = G.getCommunities(0.6)
+    # communities_70 = G.getCommunities(0.7)
+    # communities_80 = G.getCommunities(0.8)
+    # communities_90 = G.getCommunities(0.9)
+    createGraph(G.graph, communities)
+    # createGraph(G.graph, communities_50)
+    # createGraph(G.graph, communities_60)
+    # createGraph(G.graph, communities_70)
+    # createGraph(G.graph, communities_80)
+    # createGraph(G.graph, communities_90)
