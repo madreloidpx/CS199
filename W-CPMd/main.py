@@ -12,6 +12,7 @@ def readFile(filename, delimiter=","):
         for i in range(len(contents)):
                 contents[i] = contents[i].strip()
         data.append(contents)
+    f.close()
     return data
 
 def createEdgeData(data):
@@ -49,6 +50,17 @@ def createGraph(graph, communities):
     nx.draw_networkx_labels(graph, pos)
     plt.show()
 
+def saveToTxt(communities):
+    filename = "communities.txt"
+    content = ""
+    for i in range(len(communities)):
+        for node in communities[i]:
+            content = content + node + "\t" + str(i+1) + "\n"
+    content = content[:-1]
+    f = open(filename, "w")
+    f.write(content)
+    f.close()
+
 def randomColor():
     color = lambda: random.randint(0,255)
     return '#%02X%02X%02X' % (color(),color(),color())
@@ -61,14 +73,5 @@ if __name__ == '__main__':
     G = graph.Graph(graphData, "directed")
     communities = G.getCommunities(0.2)
     print("Number of communities:", len(communities))
-    # communities_50 = G.getCommunities(0.5)
-    # communities_60 = G.getCommunities(0.6)
-    # communities_70 = G.getCommunities(0.7)
-    # communities_80 = G.getCommunities(0.8)
-    # communities_90 = G.getCommunities(0.9)
+    saveToTxt(communities)
     createGraph(G.graph, communities)
-    # createGraph(G.graph, communities_50)
-    # createGraph(G.graph, communities_60)
-    # createGraph(G.graph, communities_70)
-    # createGraph(G.graph, communities_80)
-    # createGraph(G.graph, communities_90)
