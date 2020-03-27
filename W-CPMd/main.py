@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import random
 import sys
 import graph
+import subprocess
 
 def readFile(filename, delimiter=","):
     f = open(filename, "r")
@@ -71,7 +72,12 @@ if __name__ == '__main__':
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     G = graph.Graph(graphData, "directed")
-    communities = G.getCommunities(0.2)
-    print("Number of communities:", len(communities))
+    threshold = 0.1775
+    communities = G.getCommunities(threshold)
+    print("Threshold:", threshold, "Number of communities:", len(communities))
+    print(communities)
     saveToTxt(communities)
+    process = subprocess.Popen(["./onmi", "../communities.txt", "../community.dat"],  cwd="./Overlapping-NMI", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, err = process.communicate()
+    print((output).decode('ascii'))
     createGraph(G.graph, communities)
