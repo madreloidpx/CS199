@@ -1,4 +1,5 @@
 import networkx as nx
+from copy import deepcopy
 
 class Graph:
     def __init__(self, graphData, mode):
@@ -54,21 +55,32 @@ class Graph:
         commonNeighbors = [node for node in neighborDrain if node in incomingLinkSource]
         return [source] + commonNeighbors + [drain]
     
-    def getCommunities(self, threshold, communities = []):
-        if len(self.weakCliques) == 0:
+    def getCommunities(self, threshold, communities = [], wq=None):
+        if wq == None:
+            wq = deepcopy(self.weakCliques)
+        if len(wq) == 0:
             return communities
-        currentWQ = self.weakCliques.pop(0)
+        currentWQ = wq.pop(0)
+        print("current wq:", currentWQ)
         isCommunity = True
-        for wq in self.weakCliques:
-            if self.shouldWeakCliqueMerge(currentWQ, wq, threshold) == True:
-                currentWQ = self.weakCliqueMerge(currentWQ, wq)
-                self.weakCliques.remove(wq)
-                isCommunity = False
+        try:
+            for i in range(len(wq)):
+                if self.shouldWeakCliqueMerge(currentWQ, wq[i], threshold) == True:
+                    print("merged", currentWQ, "and", wq[i])
+                    currentWQ = self.weakCliqueMerge(currentWQ, wq[i])
+                    popped = wq.pop(i)
+                    print("popped", popped)
+                    i = i-1
+                    isCommunity = False
+        except IndexError:
+            pass
         if isCommunity == False:
-            self.weakCliques.insert(0, currentWQ)
+            wq.insert(0, currentWQ)
+            print("reinserted", currentWQ)
         else:
             communities.append(currentWQ)
-        return self.getCommunities(threshold, communities)
+            print("appended to community:", currentWQ)
+        return self.getCommunities(threshold, communities, wq)
     
     def shouldWeakCliqueMerge(self, WQu, WQv, threshold):
         commonNodes = self.getCommonNodes(WQu, WQv)
