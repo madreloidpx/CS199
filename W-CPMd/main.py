@@ -82,7 +82,7 @@ def iterThreshold(graph, step=0.1, start=0, end=1):
 
 if __name__ == '__main__':
     sys.setrecursionlimit(2000)
-    data = readFile("test1.txt", '\t')
+    data = readFile("network.nsa", '\t')
     edgeData = createEdgeData(data)
     graphData = {"edge_data": edgeData}
     G = graph.Graph(graphData, "directed")

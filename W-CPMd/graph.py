@@ -58,28 +58,24 @@ class Graph:
     def getCommunities(self, threshold, communities = [], wq=None):
         if wq == None:
             wq = deepcopy(self.weakCliques)
+            communities = []
         if len(wq) == 0:
             return communities
         currentWQ = wq.pop(0)
-        print("current wq:", currentWQ)
         isCommunity = True
         try:
             for i in range(len(wq)):
                 if self.shouldWeakCliqueMerge(currentWQ, wq[i], threshold) == True:
-                    print("merged", currentWQ, "and", wq[i])
                     currentWQ = self.weakCliqueMerge(currentWQ, wq[i])
                     popped = wq.pop(i)
-                    print("popped", popped)
                     i = i-1
                     isCommunity = False
         except IndexError:
             pass
         if isCommunity == False:
             wq.insert(0, currentWQ)
-            print("reinserted", currentWQ)
         else:
             communities.append(currentWQ)
-            print("appended to community:", currentWQ)
         return self.getCommunities(threshold, communities, wq)
     
     def shouldWeakCliqueMerge(self, WQu, WQv, threshold):
