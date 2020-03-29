@@ -4,7 +4,7 @@ import os.path as Path
 class WCPMD:
     def __init__(self, graphDir = None, trueCommunityDir = None, recursionLimit = 2000, nmiDir = "./Overlapping-NMI"):
         self.recursionLimit = recursionLimit
-        self.nmiDir = nmiDir
+        self.nmiDir = None
         self.graphDataFile = graphDir
         self.trueCommunityFile = trueCommunityDir
         self.__graphData = None
@@ -12,6 +12,8 @@ class WCPMD:
         self.__welcome = True
         self.__border = "+-----------------------------------------------------------------------------------------+"
         sys.setrecursionlimit(self.recursionLimit)
+        if Path.exists(nmiDir):
+            self.nmiDir = nmiDir
     
     def __welcomeMessage(self):
         return """
