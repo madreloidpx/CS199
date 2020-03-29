@@ -23,7 +23,7 @@ def createEdgeData(data):
         if len(line) == 3: edges.append((line[0], line[1], line[2]))
     return edges
 
-def createGraph(graph, communities):
+def createGraph(graph, communities): #I need to find a way to better represent overlapping nodes
     overlappingNodes = set()
     edgeCommunities = []
     pos = nx.spring_layout(graph)
@@ -66,8 +66,6 @@ def randomColor():
     return '#%02X%02X%02X' % (color(),color(),color())
 
 def iterThreshold(graph, step=0.1, start=0, end=1):
-    savedCommunity = None
-    highestNMI = 0
     multiplier = 1
     while int(step * multiplier) != step*multiplier:
         multiplier = multiplier * 10
@@ -75,10 +73,15 @@ def iterThreshold(graph, step=0.1, start=0, end=1):
         threshold = i/multiplier
         communities = graph.getCommunities(threshold)
         print("Threshold:", threshold, "Number of communities:", len(communities))
-        saveToTxt(communities, "communities.txt")
-        process = subprocess.Popen(["./onmi", "../communities.txt", "../community.dat"],  cwd="./Overlapping-NMI", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, err = process.communicate()
-        print((output).decode('ascii'))
+        communityFile = "communities.txt"
+        trueCommunityFile = "community.dat"
+        saveToTxt(communities, communityFile)
+        getNMI(communityFile, trueCommunityFile)
+
+def getNMI(communityFile, trueCommunityFile):
+    process = subprocess.Popen(["./onmi", "../" + communityFile, "../" + trueCommunityFile],  cwd="./Overlapping-NMI", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, err = process.communicate()
+    print((output).decode('ascii'))
 
 if __name__ == '__main__':
     sys.setrecursionlimit(2000)
