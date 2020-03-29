@@ -7,20 +7,20 @@ class WCPMD:
         self.nmiDir = nmiDir
         self.graphDataFile = graphDir
         self.trueCommunityFile = trueCommunityDir
-        self.graphData = None
-        self.graph = None
-        self.welcome = True
-        self.border = "+-----------------------------------------------------------------------------------------+"
+        self.__graphData = None
+        self.__graph = None
+        self.__welcome = True
+        self.__border = "+-----------------------------------------------------------------------------------------+"
         sys.setrecursionlimit(self.recursionLimit)
     
-    def welcomeMessage(self):
+    def __welcomeMessage(self):
         return """
     {0}
         Welcome to W-CPM-d!
         For a quick set-up, enter 'initialize'.
         For the complete list of commands, enter 'help'.
     {0}
-        """.format(self.border)
+        """.format(self.__border)
 
     def menu(self):
         return """
@@ -35,7 +35,7 @@ class WCPMD:
         > settings: show current settings. 
         > quit: exit the program                     
     {4}
-        """.format(self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.border)
+        """.format(self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.__border)
     
     def showSettings(self):
         return """
@@ -46,15 +46,15 @@ class WCPMD:
         > Graph Data Directory: {2}
         > True Community Directory: {3}
     {4}
-        """.format(self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.border)
+        """.format(self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.__border)
 
-    def goodbyeMessage(self):
+    def __goodbyeMessage(self):
         return """
     {0}
         Thank you for using W-CPMd!
         Insert license and copyright here laterrrr
     {0}
-        """.format(self.border)
+        """.format(self.__border)
 
     def getCommands(self):
         return {
@@ -112,13 +112,13 @@ class WCPMD:
         print(self.showSettings())
     
     def run(self):
-        if self.welcome == True:
-            print(self.welcomeMessage())
-            self.welcome = False
+        if self.__welcome == True:
+            print(self.__welcomeMessage())
+            self.__welcome = False
         commands = self.getCommands()
         command = input("> ")
         if command == "quit":
-            print(self.goodbyeMessage())
+            print(self.__goodbyeMessage())
             exit(0)
         try:
             func = commands.get(command)
