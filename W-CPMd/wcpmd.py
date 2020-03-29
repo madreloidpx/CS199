@@ -106,7 +106,19 @@ class WCPMD:
         print("Setting graph data...")
     
     def setTrueCommunityDir(self):
-        print("True Community file directory is set.")
+        tcDir = input("True Community File Directory [%s] :" % (self.trueCommunityFile))
+        if tcDir == "":
+            tcDir = self.trueCommunityFile
+        if tcDir == None:
+            print("No file set.")
+            return
+        validPath = Path.exists(tcDir)
+        if validPath == True:
+            self.trueCommunityFile = tcDir
+            print("True Community File directory is set.")
+        else:
+            print("File directory doesn't exist.")
+            self.setTrueCommunityDir()
     
     def settings(self):
         print(self.showSettings())
