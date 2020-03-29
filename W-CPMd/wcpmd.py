@@ -64,7 +64,7 @@ class WCPMD:
             "initialize": self.initialize,
             "setNMIDir": self.setNMI,
             "setRL": self.setRecursionLimit,
-            "setGD": self.setGraph,
+            "setGD": self.setGraphDir,
             "setTCD": self.setTrueCommunityDir,
             "settings": self.settings
         }
@@ -76,12 +76,12 @@ class WCPMD:
         print("Initializing...")
         self.setRecursionLimit()
         self.setNMI()
-        self.setGraph()
+        self.setGraphDir()
         self.setTrueCommunityDir()
         print("Done initializing.")
     
     def setNMI(self):
-        nmiDir = input("NMI Directory [%s] :" % (self.nmiDir))
+        nmiDir = input("NMI Directory [%s] : " % (self.nmiDir))
         if nmiDir == "":
             nmiDir = self.nmiDir
         validPath = Path.exists(nmiDir)
@@ -93,7 +93,7 @@ class WCPMD:
             self.setNMI()
     
     def setRecursionLimit(self):
-        recursionLimit = input("Recursion Limit [%d] :" % (self.recursionLimit))
+        recursionLimit = input("Recursion Limit [%d] : " % (self.recursionLimit))
         if recursionLimit == "":
             recursionLimit = self.recursionLimit
         try:
@@ -104,11 +104,20 @@ class WCPMD:
             print("Invalid input.")
             self.setRecursionLimit()
     
-    def setGraph(self):
-        print("Setting graph data...")
+    def setGraphDir(self):
+        graphDataFile = input("Graph Data Directory [%s] : " % (self.graphDataFile))
+        if graphDataFile == "":
+            graphDataFile = self.graphDataFile
+        validPath = Path.exists(graphDataFile)
+        if validPath == True:
+            self.graphDataFile = graphDataFile
+            print("Graph Data directory is set.")
+        else:
+            print("File directory doesn't exist.")
+            self.setGraphDir()
     
     def setTrueCommunityDir(self):
-        tcDir = input("True Community File Directory [%s] :" % (self.trueCommunityFile))
+        tcDir = input("True Community File Directory [%s] : " % (self.trueCommunityFile))
         if tcDir == "":
             tcDir = self.trueCommunityFile
         if tcDir == None:

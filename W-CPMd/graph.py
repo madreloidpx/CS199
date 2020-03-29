@@ -9,7 +9,7 @@ class Graph:
         self.edges = None
         self.weakCliques = None
 
-        chooseMode = {
+        chooseMode = { #add more modes in the future
             "directed": self.createMultiDiGraph,
         }
         func = chooseMode.get(self.mode, lambda: "Invalid network type")
