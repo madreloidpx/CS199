@@ -1,5 +1,9 @@
 import sys
+import graph
+import time
+import networkx as nx
 import os.path as Path
+import matplotlib.pyplot as plt
 
 class WCPMD:
     def __init__(self, graphDir = None, trueCommunityDir = None, recursionLimit = 2000, nmiDir = "./Overlapping-NMI"):
@@ -7,6 +11,8 @@ class WCPMD:
         self.nmiDir = None
         self.graphDataFile = graphDir
         self.trueCommunityFile = trueCommunityDir
+        self.__data = None
+        self.__edgeData = None
         self.__graphData = None
         self.__graph = None
         self.__welcome = True
@@ -26,18 +32,20 @@ class WCPMD:
 
     def menu(self):
         return """
-    {4}
+    {0}
         Command List:                                                                         
         > help: opens the commands menu
         > initialize: runs settings                                                          
-        > setNMIDir: sets the directory for NMI evaluator. Default is {0}.     
-        > setRL: changes the recursion limit. Default is {1}.                               
-        > setGD: input file directory for graph data. Default is {2}.                       
-        > setTCD: input true community file directory. Default is {3}.
+        > setNMIDir: sets the directory for NMI evaluator. Default is {1}.     
+        > setRL: changes the recursion limit. Default is {2}.                               
+        > setGD: input file directory for graph data.
+                 Algorithm currently only accepts a tab delimiter. Default is {3}.                       
+        > setTCD: input true community file directory. Default is {4}.
         > settings: show current settings. 
+        > showGraph: shows the current graph. Graph data directory required to be set beforehand.
         > quit: exit the program                     
-    {4}
-        """.format(self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.__border)
+    {0}
+        """.format(self.__border, self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile)
     
     def showSettings(self):
         return """
@@ -66,7 +74,8 @@ class WCPMD:
             "setRL": self.setRecursionLimit,
             "setGD": self.setGraphDir,
             "setTCD": self.setTrueCommunityDir,
-            "settings": self.settings
+            "settings": self.settings,
+            "showGraph": self.showUncoloredGraph,
         }
     
     def help(self):
@@ -112,6 +121,9 @@ class WCPMD:
         if validPath == True:
             self.graphDataFile = graphDataFile
             print("Graph Data directory is set.")
+            self.__readFile()
+            self.__createEdgeData()
+            self.__generateGraph()
         else:
             print("File directory doesn't exist.")
             self.setGraphDir()
@@ -133,6 +145,19 @@ class WCPMD:
     
     def settings(self):
         print(self.showSettings())
+
+    def showUncoloredGraph(self):
+        if self.__graph == None:
+            print("Graph data not found. Please enter graph directory using 'setGD'.")
+            return
+        print("Generating graph...")
+        pos = nx.spring_layout(self.__graph.graph)
+        nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'))
+        nx.draw_networkx_labels(self.__graph.graph, pos)
+        nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=self.__edgeData, edge_color='black', arrows=True)
+        print("Graph will pop up in a window. Exit the window to continue...")
+        plt.show()
+        print("Graph is closed.")
     
     def run(self):
         if self.__welcome == True:
@@ -149,6 +174,36 @@ class WCPMD:
         except TypeError:
             print("Command invalid. For the full list of commands, type 'help'.")
         self.run()
+    
+    def __readFile(self):
+        print("Parsing graph data...")
+        f = open(self.graphDataFile, "r")
+        data = []
+        for line in f:
+            contents = line.split("\t")
+            for i in range(len(contents)):
+                    contents[i] = contents[i].strip()
+            data.append(contents)
+        f.close()
+        self.__data = data
+        print("Data parsed.")
+    
+    def __createEdgeData(self):
+        print("Creating edge data...")
+        edges = []
+        for line in self.__data:
+            if len(line) == 2: edges.append((line[0], line[1]))
+            if len(line) == 3: edges.append((line[0], line[1], line[2]))
+        self.__edgeData = edges
+        self.__graphData = {"edge_data": self.__edgeData}
+        print("Edge data generated.")
+    
+    def __generateGraph(self):
+        print("Generating graph data...")
+        start = time.time()
+        self.__graph = graph.Graph(self.__graphData, "directed")
+        end = time.time()
+        print("Graph data generated in", str(end-start), "sec")
 
 run = WCPMD()
 print(run.run())
