@@ -49,14 +49,15 @@ class WCPMD:
     
     def showSettings(self):
         return """
-    {4}
+    {0}
         Current Settings:
-        > NMI Directory: {0}
-        > Recursion Limit: {1}
-        > Graph Data Directory: {2}
-        > True Community Directory: {3}
-    {4}
-        """.format(self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.__border)
+        > NMI Directory: {1}
+        > Recursion Limit: {2}
+        > Graph Data Directory: {3}
+        > True Community Directory: {4}
+        > Graph initialized: {5}
+    {0}
+        """.format(self.__border, self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.__graph != None)
 
     def __goodbyeMessage(self):
         return """
