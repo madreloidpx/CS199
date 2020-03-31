@@ -1,15 +1,5 @@
 import subprocess
 
-def saveToTxt(communities, filename="communities.txt"):
-    content = ""
-    for i in range(len(communities)):
-        for node in communities[i]:
-            content = content + node + "\t" + str(i+1) + "\n"
-    content = content[:-1]
-    f = open(filename, "w")
-    f.write(content)
-    f.close()
-
 def iterThreshold(graph, step=0.1, start=0, end=1):
     multiplier = 1
     while int(step * multiplier) != step*multiplier:

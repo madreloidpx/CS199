@@ -226,6 +226,24 @@ class WCPMD:
         end = time.time()
         print("Communities computed in", str(end-start), "sec")
         self.__showCommunity(communities)
+        save = input("Save community data? [y/n]: ")
+        if save.lower() == 'y' or save.lower() == 'yes':
+            filename = input("Input filename [communities.txt]: ")
+            if filename == "":
+                filename = "communities.txt"
+            print("Saving...")
+            self.__saveToTxt(communities, filename)
+            print("Saved.")
+    
+    def __saveToTxt(self, communities, filename=".communities.txt"):
+        content = ""
+        for i in range(len(communities)):
+            for node in communities[i]:
+                content = content + node + "\t" + str(i+1) + "\n"
+        content = content[:-1]
+        f = open(filename, "w")
+        f.write(content)
+        f.close()
     
     def __randomColor(self):
         color = lambda: random.randint(0,255)
