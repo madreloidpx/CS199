@@ -72,6 +72,8 @@ class Graph:
                     isCommunity = False
         except IndexError:
             pass
+        except Exception as error:
+            print(error)
         if isCommunity == False:
             wq.insert(0, currentWQ)
         else:

@@ -1,6 +1,7 @@
 import sys
 import graph
 import time
+import random
 import networkx as nx
 import os.path as Path
 import matplotlib.pyplot as plt
@@ -42,7 +43,8 @@ class WCPMD:
                  Algorithm currently only accepts a tab delimiter. Default is {3}.                       
         > setTCD: input true community file directory. Default is {4}.
         > settings: show current settings. 
-        > showGraph: shows the current graph. Graph data directory required to be set beforehand.
+        > showGraph: shows the current graph.
+        > showCommunity: shows the community by providing a specific threshold.
         > quit: exit the program                     
     {0}
         """.format(self.__border, self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile)
@@ -77,6 +79,7 @@ class WCPMD:
             "setTCD": self.setTrueCommunityDir,
             "settings": self.settings,
             "showGraph": self.showUncoloredGraph,
+            "showCommunity": self.showGraphSpecificThreshold,
         }
     
     def help(self):
@@ -205,6 +208,60 @@ class WCPMD:
         self.__graph = graph.Graph(self.__graphData, "directed")
         end = time.time()
         print("Graph data generated in", str(end-start), "sec")
+    
+    def showGraphSpecificThreshold(self):
+        if self.__graph == None:
+            print("No graph data found.")
+            return
+        threshold = input("Threshold: ")
+        try:
+            if float(threshold) > 1 or float(threshold) < 0:
+                raise Exception
+        except:
+            print("Invalid threshold. Please select from [0, 1].")
+            self.showGraphSpecificThreshold()
+        print("Generating communities...")
+        start = time.time()
+        communities = self.__graph.getCommunities(float(threshold))
+        end = time.time()
+        print("Communities computed in", str(end-start), "sec")
+        self.__showCommunity(communities)
+    
+    def __randomColor(self):
+        color = lambda: random.randint(0,255)
+        return '#%02X%02X%02X' % (color(),color(),color())
+    
+    def __showCommunity(self, communities): #I need to find a way to better represent overlapping nodes
+        print("Generating graph...")
+        overlappingNodes = set()
+        edgeCommunities = []
+        pos = nx.spring_layout(self.__graph.graph)
+        for i in range(len(communities)):
+            if len(communities[i]) <= 2:
+                edgeCommunities.append((communities[i][0], communities[i][1]))
+                continue
+            for j in range(i+1, len(communities)):
+                if len(communities[j]) <= 2:
+                    if i == len(communities)-1:
+                        edgeCommunities.append((communities[j][0], communities[j][1]))
+                    continue
+                intersection = (set(communities[i])).intersection(set(communities[j]))
+                overlappingNodes = overlappingNodes.union(intersection)
+            nodesToColor = [node for node in communities[i] if node not in overlappingNodes]
+            nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = self.__randomColor())
+        overlappingNodes = list(overlappingNodes)
+        if len(edgeCommunities) != 0:
+            nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=edgeCommunities, edge_color="black", arrows=True)
+        if len(overlappingNodes) != 0:
+            nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
+        plainEdges = [edge for edge in self.__graph.graph.edges() if edge not in edgeCommunities]
+        nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
+        nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=plainEdges, edge_color=self.__randomColor(), arrows=True)
+        nx.draw_networkx_labels(self.__graph.graph, pos)
+        print("Graph generated.")
+        print("Graph will pop up in a window. Exit the window to continue...")
+        plt.show()
+        print("Graph is closed.")
 
 run = WCPMD()
 print(run.run())
