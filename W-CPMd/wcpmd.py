@@ -185,6 +185,7 @@ class WCPMD:
         start = time.time()
         communities = self.__graph.getCommunities(float(threshold))
         end = time.time()
+        print("Community count:", len(communities))
         print("Communities computed in", str(end-start), "sec")
         self.__showCommunity(communities)
         save = input("Save community data? [y/n]: ")
