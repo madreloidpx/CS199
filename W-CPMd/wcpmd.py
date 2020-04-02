@@ -7,10 +7,10 @@ import os.path as Path
 import matplotlib.pyplot as plt
 
 class WCPMD:
-    def __init__(self, graphDir = None, recursionLimit = 2000, mode = "CLI"):
+    def __init__(self, graphDir = None, recursionLimit = 2000, auto = False):
         self.recursionLimit = recursionLimit
         self.graphDataFile = graphDir
-        self.__mode = mode
+        self.__auto = auto
         self.__data = None
         self.__edgeData = None
         self.__graphData = None
@@ -99,11 +99,11 @@ class WCPMD:
     def setGraphDir(self):
         validPath = False
         graphDataFile = None
-        if self.__mode == "CLI":
+        if self.__auto == False:
             graphDataFile = input("Graph Data Directory [%s] : " % (self.graphDataFile))
             if graphDataFile == "":
                 graphDataFile = self.graphDataFile
-        elif self.__mode == "AUTO":
+        elif self.__auto == True:
             graphDataFile = self.graphDataFile
         validPath = Path.exists(graphDataFile)
         if validPath == True:
