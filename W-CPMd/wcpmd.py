@@ -7,9 +7,10 @@ import os.path as Path
 import matplotlib.pyplot as plt
 
 class WCPMD:
-    def __init__(self, graphDir = None, recursionLimit = 2000):
+    def __init__(self, graphDir = None, recursionLimit = 2000, mode = "CLI"):
         self.recursionLimit = recursionLimit
         self.graphDataFile = graphDir
+        self.__mode = mode
         self.__data = None
         self.__edgeData = None
         self.__graphData = None
@@ -17,6 +18,8 @@ class WCPMD:
         self.__welcome = True
         self.__border = "+-----------------------------------------------------------------------------------------+"
         sys.setrecursionlimit(self.recursionLimit)
+        if self.graphDataFile != None:
+            self.setGraphDir()
     
     def __welcomeMessage(self):
         return """
@@ -94,8 +97,13 @@ class WCPMD:
             self.setRecursionLimit()
     
     def setGraphDir(self):
-        graphDataFile = input("Graph Data Directory [%s] : " % (self.graphDataFile))
-        if graphDataFile == "":
+        validPath = False
+        graphDataFile = None
+        if self.__mode == "CLI":
+            graphDataFile = input("Graph Data Directory [%s] : " % (self.graphDataFile))
+            if graphDataFile == "":
+                graphDataFile = self.graphDataFile
+        elif self.__mode == "AUTO":
             graphDataFile = self.graphDataFile
         validPath = Path.exists(graphDataFile)
         if validPath == True:
@@ -106,6 +114,7 @@ class WCPMD:
             self.__generateGraph()
         else:
             print("File directory doesn't exist.")
+            self.graphDataFile = None
             self.setGraphDir()
     
     def settings(self):
