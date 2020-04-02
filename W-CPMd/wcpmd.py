@@ -197,7 +197,7 @@ class WCPMD:
             self.__saveToTxt(communities, filename)
             print("Saved.")
     
-    def __saveToTxt(self, communities, filename=".communities.txt"):
+    def __saveToTxt(self, communities, filename="communities.txt"):
         content = ""
         for i in range(len(communities)):
             for node in communities[i]:
