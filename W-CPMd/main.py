@@ -1,23 +1,39 @@
-import subprocess
+import sys
+import wcpmd
 
-def iterThreshold(graph, step=0.1, start=0, end=1):
-    multiplier = 1
-    while int(step * multiplier) != step*multiplier:
-        multiplier = multiplier * 10
-    for i in range(int(start * multiplier), int(end * multiplier)+1, int(step * multiplier)):
-        threshold = i/multiplier
-        communities = graph.getCommunities(threshold)
-        print("Threshold:", threshold, "Number of communities:", len(communities))
-        communityFile = "communities.txt"
-        trueCommunityFile = "community.dat"
-        saveToTxt(communities, communityFile)
-        getNMI(communityFile, trueCommunityFile)
+def help():
+    print("""
+    To run interactive CLI, run 'python3 main.py'.
+    Note: CLI currently does not have an NMI checker.
+    
+    -h, --help, help: run help
 
-def getNMI(communityFile, trueCommunityFile):
-    process = subprocess.Popen(["./onmi", "../" + communityFile, "../" + trueCommunityFile],  cwd="./Overlapping-NMI", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, err = process.communicate()
-    print((output).decode('ascii'))
+    generateCommunity: generates a community file data given the graph data and a threshold.
+    -gd: Required. Accepts graph data directory. Currently only accepts tabs as delimiter.
+    -t: Required. Sets the threshold.
+    -rl: Sets recursion limit.
+    -out: Filename for resulting community data. Default is 'community.txt'
+
+    """)
+
+def getMode(_mode):
+    mode = {
+        "generateCommunity": generateCommunity
+    }
+    return mode.get(_mode)
+
+def generateCommunity(commands):
+    print("generate community")
 
 if __name__ == '__main__':
-    iterThreshold(G)
-    # createGraph(G.graph, communities)
+    if len(sys.argv) == 1:
+        wcpmd.WCPMD().run()
+    elif len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help" or sys.argv[1] == "help"):
+        help()
+    else:
+        func = getMode(sys.argv[1])
+        if func == None:
+            print("Invalid command.")
+            exit(0)
+        commands = sys.argv[2:]
+        func(commands)
