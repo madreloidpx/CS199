@@ -7,11 +7,9 @@ import os.path as Path
 import matplotlib.pyplot as plt
 
 class WCPMD:
-    def __init__(self, graphDir = None, trueCommunityDir = None, recursionLimit = 2000, nmiDir = "./Overlapping-NMI"):
+    def __init__(self, graphDir = None, recursionLimit = 2000):
         self.recursionLimit = recursionLimit
-        self.nmiDir = None
         self.graphDataFile = graphDir
-        self.trueCommunityFile = trueCommunityDir
         self.__data = None
         self.__edgeData = None
         self.__graphData = None
@@ -19,8 +17,6 @@ class WCPMD:
         self.__welcome = True
         self.__border = "+-----------------------------------------------------------------------------------------+"
         sys.setrecursionlimit(self.recursionLimit)
-        if Path.exists(nmiDir):
-            self.nmiDir = nmiDir
     
     def __welcomeMessage(self):
         return """
@@ -37,29 +33,25 @@ class WCPMD:
         Command List:                                                                         
         > help: opens the commands menu
         > initialize: runs settings                                                          
-        > setNMIDir: sets the directory for NMI evaluator. Default is {1}.     
-        > setRL: changes the recursion limit. Default is {2}.                               
+        > setRL: changes the recursion limit. Default is {1}.                               
         > setGD: input file directory for graph data.
-                 Algorithm currently only accepts a tab delimiter. Default is {3}.                       
-        > setTCD: input true community file directory. Default is {4}.
+                 Algorithm currently only accepts a tab delimiter. Default is {2}.                       
         > settings: show current settings. 
         > showGraph: shows the current graph.
         > showCommunity: shows the community by providing a specific threshold.
         > quit: exit the program                     
     {0}
-        """.format(self.__border, self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile)
+        """.format(self.__border, self.recursionLimit, self.graphDataFile)
     
     def showSettings(self):
         return """
     {0}
         Current Settings:
-        > NMI Directory: {1}
-        > Recursion Limit: {2}
-        > Graph Data Directory: {3}
-        > True Community Directory: {4}
-        > Graph initialized: {5}
+        > Recursion Limit: {1}
+        > Graph Data Directory: {2}
+        > Graph initialized: {3}
     {0}
-        """.format(self.__border, self.nmiDir, self.recursionLimit, self.graphDataFile, self.trueCommunityFile, self.__graph != None)
+        """.format(self.__border, self.recursionLimit, self.graphDataFile, self.__graph != None)
 
     def __goodbyeMessage(self):
         return """
@@ -73,10 +65,8 @@ class WCPMD:
         return {
             "help": self.help,
             "initialize": self.initialize,
-            "setNMIDir": self.setNMI,
             "setRL": self.setRecursionLimit,
             "setGD": self.setGraphDir,
-            "setTCD": self.setTrueCommunityDir,
             "settings": self.settings,
             "showGraph": self.showUncoloredGraph,
             "showCommunity": self.showGraphSpecificThreshold,
@@ -88,22 +78,8 @@ class WCPMD:
     def initialize(self):
         print("Initializing...")
         self.setRecursionLimit()
-        self.setNMI()
         self.setGraphDir()
-        self.setTrueCommunityDir()
         print("Done initializing.")
-    
-    def setNMI(self):
-        nmiDir = input("NMI Directory [%s] : " % (self.nmiDir))
-        if nmiDir == "":
-            nmiDir = self.nmiDir
-        validPath = Path.exists(nmiDir)
-        if validPath == True:
-            self.nmiDir = nmiDir
-            print("NMI directory is set.")
-        else:
-            print("File directory doesn't exist.")
-            self.setNMI()
     
     def setRecursionLimit(self):
         recursionLimit = input("Recursion Limit [%d] : " % (self.recursionLimit))
@@ -131,21 +107,6 @@ class WCPMD:
         else:
             print("File directory doesn't exist.")
             self.setGraphDir()
-    
-    def setTrueCommunityDir(self):
-        tcDir = input("True Community File Directory [%s] : " % (self.trueCommunityFile))
-        if tcDir == "":
-            tcDir = self.trueCommunityFile
-        if tcDir == None:
-            print("No file set.")
-            return
-        validPath = Path.exists(tcDir)
-        if validPath == True:
-            self.trueCommunityFile = tcDir
-            print("True Community File directory is set.")
-        else:
-            print("File directory doesn't exist.")
-            self.setTrueCommunityDir()
     
     def settings(self):
         print(self.showSettings())
@@ -280,6 +241,3 @@ class WCPMD:
         print("Graph will pop up in a window. Exit the window to continue...")
         plt.show()
         print("Graph is closed.")
-
-run = WCPMD()
-print(run.run())
