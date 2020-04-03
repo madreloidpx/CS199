@@ -47,8 +47,9 @@ def generateCommunity(commands, **kwargs):
         generateCommunity(commands, **kwargs)
     else:
         kwargs.update({ "auto": True })
-        print(kwargs)
-
+        run = wcpmd.WCPMD(**kwargs)
+        run.initialize()
+        run.showGraphSpecificThreshold()
 
 def getGenerateCommunityModes(_mode):
     mode = {

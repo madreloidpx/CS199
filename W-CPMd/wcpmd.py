@@ -19,7 +19,8 @@ class WCPMD:
         self.__welcome = True
         self.__border = "+-----------------------------------------------------------------------------------------+"
         self.__outFilename = kwargs.get("filename") or "communities.txt"
-        sys.setrecursionlimit(self.recursionLimit)
+        if self.__auto == False:
+            sys.setrecursionlimit(self.recursionLimit)
     
     def __welcomeMessage(self):
         return """
@@ -85,15 +86,19 @@ class WCPMD:
         print("Done initializing.")
     
     def setRecursionLimit(self):
-        recursionLimit = input("Recursion Limit [%d] : " % (self.recursionLimit))
-        if recursionLimit == "":
-            recursionLimit = self.recursionLimit
+        if self.__auto == False:
+            recursionLimit = input("Recursion Limit [%d] : " % (self.recursionLimit))
+            if recursionLimit == "":
+                recursionLimit = self.recursionLimit
         try:
-            self.recursionLimit = int(recursionLimit)
+            if self.__auto == False:
+                self.recursionLimit = int(recursionLimit)
+            else:
+                self.recursionLimit = int(self.recursionLimit)
             sys.setrecursionlimit(self.recursionLimit)
             print("Recursion limit is set to", self.recursionLimit)
         except ValueError:
-            print("Invalid input.")
+            print("Invalid recursion limit.")
             self.setRecursionLimit()
     
     def setGraphDir(self):
@@ -183,7 +188,10 @@ class WCPMD:
         if self.__graph == None:
             print("No graph data found.")
             return
-        threshold = input("Threshold: ")
+        if self.__auto == False:
+            threshold = input("Threshold: ")
+        else:
+            threshold = self.threshold
         try:
             if float(threshold) > 1 or float(threshold) < 0:
                 raise Exception
@@ -196,12 +204,16 @@ class WCPMD:
         end = time.time()
         print("Community count:", len(communities))
         print("Communities computed in", str(end-start), "sec")
-        self.__showCommunity(communities)
-        save = input("Save community data? [y/n]: ")
+        if self.__auto == False:
+            self.__showCommunity(communities)
+            save = input("Save community data? [y/n]: ")
+        else:
+            save = 'y'
         if save.lower() == 'y' or save.lower() == 'yes':
-            filename = input("Input filename [communities.txt]: ")
-            if filename != "":
-                self.__outFilename = filename
+            if self.__auto == False:
+                filename = input("Input filename [communities.txt]: ")
+                if filename != "":
+                    self.__outFilename = filename
             print("Saving...")
             self.__saveToTxt(communities)
             print("Saved.")
