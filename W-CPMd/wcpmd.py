@@ -8,20 +8,18 @@ import matplotlib.pyplot as plt
 
 class WCPMD:
     def __init__(self, **kwargs):
-        self.recursionLimit = kwargs["recursionLimit"] or 2000
-        self.graphDataFile = kwargs["graphDir"] or None
-        self.threshold = kwargs["threshold"] or None
-        self.__auto = kwargs["auto"] or False
+        self.recursionLimit = kwargs.get("recursionLimit") or 2000
+        self.graphDataFile = kwargs.get("graphDir") or None
+        self.threshold = kwargs.get("threshold") or None
+        self.__auto = kwargs.get("auto") or False
         self.__data = None
         self.__edgeData = None
         self.__graphData = None
         self.__graph = None
         self.__welcome = True
         self.__border = "+-----------------------------------------------------------------------------------------+"
-        self.__outFilename = kwargs["filename"] or "communities.txt"
+        self.__outFilename = kwargs.get("filename") or "communities.txt"
         sys.setrecursionlimit(self.recursionLimit)
-        if self.graphDataFile != None or self.graphDataFile != "":
-            self.setGraphDir()
     
     def __welcomeMessage(self):
         return """

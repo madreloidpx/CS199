@@ -61,7 +61,9 @@ def getGenerateCommunityModes(_mode):
     return mode.get(_mode)
 
 def runGenerateCommunity():
-    pass
+    run = wcpmd.WCPMD()
+    run.initialize()
+    run.showGraphSpecificThreshold()
 
 def setGraphData(filedir):
     return { "graphDir": filedir }
