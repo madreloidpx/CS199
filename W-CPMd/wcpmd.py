@@ -7,18 +7,20 @@ import os.path as Path
 import matplotlib.pyplot as plt
 
 class WCPMD:
-    def __init__(self, graphDir = None, recursionLimit = 2000, auto = False):
-        self.recursionLimit = recursionLimit
-        self.graphDataFile = graphDir
-        self.__auto = auto
+    def __init__(self, **kwargs):
+        self.recursionLimit = kwargs["recursionLimit"] or 2000
+        self.graphDataFile = kwargs["graphDir"] or None
+        self.threshold = kwargs["threshold"] or None
+        self.__auto = kwargs["auto"] or False
         self.__data = None
         self.__edgeData = None
         self.__graphData = None
         self.__graph = None
         self.__welcome = True
         self.__border = "+-----------------------------------------------------------------------------------------+"
+        self.__outFilename = kwargs["filename"] or "communities.txt"
         sys.setrecursionlimit(self.recursionLimit)
-        if self.graphDataFile != None:
+        if self.graphDataFile != None or self.graphDataFile != "":
             self.setGraphDir()
     
     def __welcomeMessage(self):
@@ -200,19 +202,19 @@ class WCPMD:
         save = input("Save community data? [y/n]: ")
         if save.lower() == 'y' or save.lower() == 'yes':
             filename = input("Input filename [communities.txt]: ")
-            if filename == "":
-                filename = "communities.txt"
+            if filename != "":
+                self.__outFilename = filename
             print("Saving...")
-            self.__saveToTxt(communities, filename)
+            self.__saveToTxt(communities)
             print("Saved.")
     
-    def __saveToTxt(self, communities, filename="communities.txt"):
+    def __saveToTxt(self, communities):
         content = ""
         for i in range(len(communities)):
             for node in communities[i]:
                 content = content + node + "\t" + str(i+1) + "\n"
         content = content[:-1]
-        f = open(filename, "w")
+        f = open(self.__outFilename, "w")
         f.write(content)
         f.close()
     

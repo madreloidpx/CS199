@@ -1,4 +1,5 @@
 import sys
+import inspect
 import wcpmd
 
 def help():
@@ -9,6 +10,7 @@ def help():
     -h, --help, help: run help
 
     generateCommunity: generates a community file data given the graph data and a threshold.
+    --run: Runs the CLI for generating communities and accepts user input.
     -gd: Required. Accepts graph data directory. Currently only accepts tabs as delimiter.
     -t: Required. Sets the threshold.
     -rl: Sets recursion limit.
@@ -22,8 +24,56 @@ def getMode(_mode):
     }
     return mode.get(_mode)
 
-def generateCommunity(commands):
-    print("generate community")
+def generateCommunity(commands, **kwargs):
+    currCommand = commands.pop(0)
+    func = getGenerateCommunityModes(currCommand)
+    if func == None:
+        print("Command", currCommand, "does not exist in generateCommunity.")
+        exit(0)
+    argsNeeded = len(inspect.getargspec(func).args)
+    if argsNeeded == 0:
+        func()
+        return
+    elif argsNeeded == 1:
+        try:
+            arg = commands.pop(0)
+            if arg[0] == "-":
+                raise Exception
+            kwargs.update(func(arg))
+        except:
+            print("Missing arguments.")
+            exit(0)
+    if len(commands) != 0:
+        generateCommunity(commands, **kwargs)
+    else:
+        kwargs.update({ "auto": True })
+        print(kwargs)
+
+
+def getGenerateCommunityModes(_mode):
+    mode = {
+        "--run": runGenerateCommunity,
+        "-gd": setGraphData,
+        "-t": setThreshold,
+        "-rl": setRecursionLimit,
+        "-out": setFilename,
+    }
+    return mode.get(_mode)
+
+def runGenerateCommunity():
+    pass
+
+def setGraphData(filedir):
+    return { "graphDir": filedir }
+
+def setThreshold(threshold):
+    return { "threshold": threshold }
+
+def setRecursionLimit(recursionLimit):
+    return { "recursionLimit": recursionLimit }
+
+def setFilename(filename):
+    return { "filename": filename }
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
