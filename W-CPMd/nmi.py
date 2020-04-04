@@ -1,4 +1,8 @@
 import subprocess
+import os
+from pathlib import Path
+
+NMIPATH = getFullPath("./Overlapping-NMI")
 
 def iterThreshold(graph, step=0.1, start=0, end=1):
     multiplier = 1
@@ -14,6 +18,12 @@ def iterThreshold(graph, step=0.1, start=0, end=1):
         getNMI(communityFile, trueCommunityFile)
 
 def getNMI(communityFile, trueCommunityFile):
-    process = subprocess.Popen(["./onmi", "../" + communityFile, "../" + trueCommunityFile],  cwd="./Overlapping-NMI", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(["./onmi", communityFile, trueCommunityFile],  cwd=NMIPATH, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = process.communicate()
     print((output).decode('ascii')
+
+def checkFileExists(dir):
+    return Path.exists(dir)
+
+def getFullPath(dir):
+    return os.path.abspath(dir)
