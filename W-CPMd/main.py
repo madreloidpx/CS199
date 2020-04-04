@@ -16,11 +16,18 @@ def help():
     -rl: Sets recursion limit.
     -out: Filename for resulting community data. Default is 'community.txt'
 
+    getCommunityNMI: gets the nmi of a community file based on its true community file.
+    -cf: Required. Accepts the community file directory
+    -tcf: Required. Accepts the true community file directory
+    -out: Filename for results file. If not provided, outputs the results in the terminal.
+    Note: Currently dependent in 'Overlapping-NMI' in getting the nmi results.
+
     """)
 
 def getMode(_mode):
     mode = {
-        "generateCommunity": generateCommunity
+        "generateCommunity": generateCommunity,
+        "getCommunityNMI": getCommunityNMI,
     }
     return mode.get(_mode)
 
@@ -77,6 +84,9 @@ def setRecursionLimit(recursionLimit):
 
 def setFilename(filename):
     return { "filename": filename }
+
+def getCommunityNMI(commands):
+    pass
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
