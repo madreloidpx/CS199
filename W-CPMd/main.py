@@ -31,7 +31,7 @@ def getMode(_mode):
     }
     return mode.get(_mode)
 
-def generateCommunity(commands, **kwargs):
+def generateKwargs(commands, modeList, **kwargs):
     currCommand = commands.pop(0)
     func = getGenerateCommunityModes(currCommand)
     if func == None:
@@ -40,8 +40,8 @@ def generateCommunity(commands, **kwargs):
     argsNeeded = len(inspect.getargspec(func).args)
     if argsNeeded == 0:
         func()
-        return
-    elif argsNeeded == 1:
+        exit(0)
+    if argsNeeded == 1:
         try:
             arg = commands.pop(0)
             if arg[0] == "-":
@@ -51,12 +51,17 @@ def generateCommunity(commands, **kwargs):
             print("Missing arguments.")
             exit(0)
     if len(commands) != 0:
-        generateCommunity(commands, **kwargs)
+        return generateKwargs(commands, modeList, **kwargs)
     else:
-        kwargs.update({ "auto": True })
-        run = wcpmd.WCPMD(**kwargs)
-        run.initialize()
-        run.showGraphSpecificThreshold()
+        return kwargs
+
+def generateCommunity(commands):
+    kwargs = generateKwargs(commands, getGenerateCommunityModes)
+    print(kwargs)
+    kwargs.update({ "auto": True })
+    run = wcpmd.WCPMD(**kwargs)
+    run.initialize()
+    run.showGraphSpecificThreshold()
 
 def getGenerateCommunityModes(_mode):
     mode = {
