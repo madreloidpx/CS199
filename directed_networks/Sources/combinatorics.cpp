@@ -278,7 +278,7 @@ double poisson (int x, double mu) {
 
 
 
-int shuffle_and_set(int *due, int dim) {		// it sets due as a random sequence of integers from 0 to dim-1
+int shuffle_and_set(int *due, const int &dim) {		// it sets due as a random sequence of integers from 0 to dim-1
 	
 	multimap <double, int> uno;
 	for (int i=0; i<dim; i++)
@@ -298,11 +298,7 @@ int shuffle_and_set(int *due, int dim) {		// it sets due as a random sequence of
 }
 
 
-
-
-
-
-int shuffle_s(deque<int> & sq) {
+int shuffle_s(deque<int> &sq) {
 	
 	
 	int siz=sq.size();
@@ -330,30 +326,7 @@ int shuffle_s(deque<int> & sq) {
 
 
 
-template <typename type_>
-int shuffle_s(type_ *a, int b) {
-	
-		
-	
-	int siz=b;
-	if(siz==0)
-		return -1;
-	
-	for (int i=0; i<b; i++) {
-		
-		int random_pos=irand(siz-1);
-	
-		type_ random_card_=a[random_pos];
-	
-		a[random_pos]=a[siz-1];
-		a[siz-1]=random_card_;
-		siz--;
-		
-	
-	}
-	
-	return 0;
-}
+
 
 
 
@@ -459,7 +432,7 @@ double compute_hypergeometric(int i, int k, int kout, int m) {
 
 
 
-/*
+//*
 double compute_self_links(int k, int n, int x) {
 	
 	
@@ -474,19 +447,6 @@ double compute_self_links(int k, int n, int x) {
 
 //*/
 
-int random_from_set(set<int> & s) {
-
-	
-	int pos1=irand(s.size()-1);
-	set<int>::iterator it1=s.begin();
-		for(int i=0; i<pos1; i++)
-			it1++;
-	
-	return *it1;
-
-
-
-}
 
 
 
