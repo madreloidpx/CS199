@@ -10,18 +10,35 @@ def getFullPath(_dir):
 
 NMIPATH = getFullPath("./Overlapping-NMI")
 
-def iterThreshold(graph, step=0.1, start=0, end=1):
+def iterThreshold(graph, **kwargs):
+    try:
+        step = kwargs.get("step") or 0.1
+        start = kwargs.get("start") or 0
+        end = kwargs.get("end") or 1
+    except:
+        print("Invalid parameters.", kwargs)
+        exit(0)
+    step = float(step)
+    start = float(start)
+    end = float(end)
     multiplier = 1
     while int(step * multiplier) != step*multiplier:
         multiplier = multiplier * 10
+    outData = ""
+    filename = kwargs.get("filename") or "nmi.txt"
     for i in range(int(start * multiplier), int(end * multiplier)+1, int(step * multiplier)):
         threshold = i/multiplier
-        communities = graph.getCommunities(threshold)
-        print("Threshold:", threshold, "Number of communities:", len(communities))
-        communityFile = "communities.txt"
-        trueCommunityFile = "community.dat"
-        saveToTxt(communities, communityFile)
-        getNMI(communityFile, trueCommunityFile)
+        graph.setThreshold(threshold)
+        graph.showGraphSpecificThreshold()
+        outData = outData + "Threshold: " + str(threshold) + "\n"
+        kwargs.update({"communityFile": filename})
+        outData = outData + getNMI(**kwargs)
+    saveNMIData(filename, outData)
+
+def removeFilename(**kwargs):
+    newKwargs = dict(kwargs)
+    del newKwargs["filename"]
+    return newKwargs
 
 def getNMI(**kwargs):
     communityFile = kwargs.get("communityFile")
@@ -34,7 +51,7 @@ def getNMI(**kwargs):
     if kwargs.get("filename") == None:
         print((output).decode('ascii'))
     else:
-        saveNMIData(kwargs.get("filename"), (output).decode('ascii'))
+        return (output).decode('ascii')
 
 def saveNMIData(filename, data):
     f = open(filename, "w")

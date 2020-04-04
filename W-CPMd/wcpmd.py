@@ -184,6 +184,9 @@ class WCPMD:
         end = time.time()
         print("Graph data generated in", str(end-start), "sec")
     
+    def setThreshold(self, threshold):
+        self.threshold = threshold
+
     def showGraphSpecificThreshold(self):
         if self.__graph == None:
             print("No graph data found.")

@@ -23,12 +23,21 @@ def help():
     -out: Filename for results file. If not provided, outputs the results in the terminal.
     Note: Currently dependent in 'Overlapping-NMI' in getting the nmi results.
 
+    iterateThreshold: generates communities based on a range of thresholds and outputs a file with NMI values.
+    -gd: Required. Accepts graph data directory. Currently only accepts tabs as delimiter.
+    -tcf: Required. Accepts the true community file directory
+    -start: Initial value for threshold. Default value is 0.
+    -end: Ending range for threshold. Default value is 1.
+    -step: Threshold steps. Default is 0.1.
+    -rl: Sets recursion limit.
+    -out: Filename for resulting NMI data. Default is 'nmi.txt'
     """)
 
 def getMode(_mode):
     mode = {
         "generateCommunity": generateCommunity,
         "getCommunityNMI": getCommunityNMI,
+        "iterateThreshold": iterateThreshold,
     }
     return mode.get(_mode)
 
@@ -96,7 +105,8 @@ def setFilename(filename):
 
 def getCommunityNMI(commands):
     kwargs = generateKwargs(commands, getCommunityNMIModes)
-    nmi.getNMI(**kwargs)
+    output = nmi.getNMI(**kwargs)
+    nmi.saveNMIData(kwargs.get("filename"), output)
 
 def getCommunityNMIModes(_mode):
     mode = {
@@ -111,6 +121,35 @@ def setCommunityFileDir(filename):
 
 def setTrueCommunityFileDir(filename):
     return { "trueCommunityFile": filename }
+
+def iterateThreshold(commands):
+    kwargs = generateKwargs(commands, getIterateThresholdModes)
+    kwargs.update({ "auto": True })
+    run = wcpmd.WCPMD(**kwargs)
+    run.initialize()
+    nmi.iterThreshold(run, **kwargs)
+
+
+def getIterateThresholdModes(_mode):
+    mode = {
+        "-gd": setGraphData,
+        "-rl": setRecursionLimit,
+        "-out": setFilename,
+        "-start": setStartRange,
+        "-end": setEndRange,
+        "-step": setStep,
+        "-tcf": setTrueCommunityFileDir,
+    }
+    return mode.get(_mode)
+
+def setStartRange(start):
+    return { "start": start }
+
+def setEndRange(end):
+    return { "end": end }
+
+def setStep(step):
+    return { "step": step }
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
