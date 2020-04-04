@@ -1,6 +1,7 @@
 import sys
 import inspect
 import wcpmd
+import nmi
 
 def help():
     print("""
@@ -32,10 +33,14 @@ def getMode(_mode):
     return mode.get(_mode)
 
 def generateKwargs(commands, modeList, **kwargs):
-    currCommand = commands.pop(0)
-    func = getGenerateCommunityModes(currCommand)
+    try:
+        currCommand = commands.pop(0)
+    except:
+        print("Arguments missing.")
+        exit(0)
+    func = modeList(currCommand)
     if func == None:
-        print("Command", currCommand, "does not exist in generateCommunity.")
+        print("Command", currCommand, "does not exist.")
         exit(0)
     argsNeeded = len(inspect.getargspec(func).args)
     if argsNeeded == 0:
@@ -57,7 +62,6 @@ def generateKwargs(commands, modeList, **kwargs):
 
 def generateCommunity(commands):
     kwargs = generateKwargs(commands, getGenerateCommunityModes)
-    print(kwargs)
     kwargs.update({ "auto": True })
     run = wcpmd.WCPMD(**kwargs)
     run.initialize()
@@ -91,7 +95,22 @@ def setFilename(filename):
     return { "filename": filename }
 
 def getCommunityNMI(commands):
-    pass
+    kwargs = generateKwargs(commands, getCommunityNMIModes)
+    nmi.getNMI(**kwargs)
+
+def getCommunityNMIModes(_mode):
+    mode = {
+        "-cf": setCommunityFileDir,
+        "-tcf": setTrueCommunityFileDir,
+        "-out": setFilename,
+    }
+    return mode.get(_mode)
+
+def setCommunityFileDir(filename):
+    return { "communityFile": filename }
+
+def setTrueCommunityFileDir(filename):
+    return { "trueCommunityFile": filename }
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
