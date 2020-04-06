@@ -209,9 +209,7 @@ class WCPMD:
         print("Community count:", communities.get("communities"))
         print("Communities computed in", str(end-start), "sec")
         if self.__auto == False:
-            #self.__showCommunity(communities)
-            self.__aveColor(self.__randomColor(), self.__randomColor())
-            self.__aveColor(self.__randomColor(), self.__randomColor(), self.__randomColor())
+            self.__showCommunity(communities)
             save = input("Save community data? [y/n]: ")
         else:
             save = 'y'
@@ -250,9 +248,9 @@ class WCPMD:
         aveColor = None
         for color in args:
             if aveColor == None:
-                aveColor = color
+                aveColor = color[1:]
             else:
-                aveColor = self.__aveHex(aveColor[1:3], color[1:3]) + self.__aveHex(aveColor[3:5], color[3:5]) + self.__aveHex(aveColor[5:], color[5:])
+                aveColor = self.__aveHex(aveColor[:2], color[1:3]) + self.__aveHex(aveColor[2:4], color[3:5]) + self.__aveHex(aveColor[4:], color[5:])
         return "#" + aveColor
     
     def __aveHex(self, hex1, hex2):
@@ -263,32 +261,43 @@ class WCPMD:
 
     def __showCommunity(self, communities): #I need to find a way to better represent overlapping nodes
         print("Generating graph...")
-        overlappingNodes = set()
-        edgeCommunities = []
+        colorCommunities = [self.__randomColor() for i in range(communities.get("communities"))]
         pos = nx.spring_layout(self.__graph.graph)
-        for i in range(len(communities)):
-            if len(communities[i]) <= 2:
-                edgeCommunities.append((communities[i][0], communities[i][1]))
-                continue
-            for j in range(i+1, len(communities)):
-                if len(communities[j]) <= 2:
-                    if i == len(communities)-1:
-                        edgeCommunities.append((communities[j][0], communities[j][1]))
-                    continue
-                intersection = (set(communities[i])).intersection(set(communities[j]))
-                overlappingNodes = overlappingNodes.union(intersection)
-            nodesToColor = [node for node in communities[i] if node not in overlappingNodes]
-            nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = self.__randomColor())
-        overlappingNodes = list(overlappingNodes)
-        if len(edgeCommunities) != 0:
-            nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=edgeCommunities, edge_color="black", arrows=True)
-        if len(overlappingNodes) != 0:
-            nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
-        plainEdges = [edge for edge in self.__graph.graph.edges() if edge not in edgeCommunities]
-        nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
-        nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=plainEdges, edge_color=self.__randomColor(), arrows=True)
-        nx.draw_networkx_labels(self.__graph.graph, pos)
+        nodes = list(communities.keys())
+        try:
+            for node in nodes:
+                if node != "communities":
+                    colors = [colorCommunities[i-1] for i in communities.get(node)]
+                    nodeColor = self.__aveColor(*colors)
+                    nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=[node], node_color = nodeColor)
+            nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=self.__graph.graph.edges(), edge_color=self.__randomColor(), arrows=True)
+            nx.draw_networkx_labels(self.__graph.graph, pos)
+            plt.show()
+        except Exception as e:
+            print(e)
+        # for i in range(len(communities)):
+        #     if len(communities[i]) <= 2:
+        #         edgeCommunities.append((communities[i][0], communities[i][1]))
+        #         continue
+        #     for j in range(i+1, len(communities)):
+        #         if len(communities[j]) <= 2:
+        #             if i == len(communities)-1:
+        #                 edgeCommunities.append((communities[j][0], communities[j][1]))
+        #             continue
+        #         intersection = (set(communities[i])).intersection(set(communities[j]))
+        #         overlappingNodes = overlappingNodes.union(intersection)
+        #     nodesToColor = [node for node in communities[i] if node not in overlappingNodes]
+        #     nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = self.__randomColor())
+        # overlappingNodes = list(overlappingNodes)
+        # if len(edgeCommunities) != 0:
+        #     nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=edgeCommunities, edge_color="black", arrows=True)
+        # if len(overlappingNodes) != 0:
+        #     nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
+        # plainEdges = [edge for edge in self.__graph.graph.edges() if edge not in edgeCommunities]
+        # nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
+        # nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=plainEdges, edge_color=self.__randomColor(), arrows=True)
+        # nx.draw_networkx_labels(self.__graph.graph, pos)
         print("Graph generated.")
-        print("Graph will pop up in a window. Exit the window to continue...")
-        plt.show()
-        print("Graph is closed.")
+        # print("Graph will pop up in a window. Exit the window to continue...")
+        # plt.show()
+        # print("Graph is closed.")
