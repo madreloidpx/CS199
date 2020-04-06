@@ -205,10 +205,10 @@ class WCPMD:
         start = time.time()
         communities = self.__graph.getCommunities(float(threshold))
         end = time.time()
-        print("Community count:", len(communities))
+        print("Community count:", communities.get("communities"))
         print("Communities computed in", str(end-start), "sec")
         if self.__auto == False:
-            self.__showCommunity(communities)
+            #self.__showCommunity(communities)
             save = input("Save community data? [y/n]: ")
         else:
             save = 'y'
@@ -218,14 +218,22 @@ class WCPMD:
                 if filename != "":
                     self.__outFilename = filename
             print("Saving...")
-            self.__saveToTxt(communities)
+            try:
+                self.__saveToTxt(communities)
+            except Exception as e:
+                print(e)
+                return
             print("Saved.")
     
     def __saveToTxt(self, communities):
         content = ""
-        for i in range(len(communities)):
-            for node in communities[i]:
-                content = content + node + "\t" + str(i+1) + "\n"
+        nodeList = list(communities.keys())
+        for i in range(len(nodeList)):
+            if nodeList[i] != "communities":
+                line = nodeList[i] + "\t"
+                for community in communities.get(nodeList[i]):
+                    line = line + str(community) + " "
+                content = content + line + "\n"
         content = content[:-1]
         f = open(self.__outFilename, "w")
         f.write(content)

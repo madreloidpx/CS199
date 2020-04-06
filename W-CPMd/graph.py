@@ -55,12 +55,22 @@ class Graph:
         commonNeighbors = [node for node in neighborDrain if node in incomingLinkSource]
         return [source] + commonNeighbors + [drain]
     
+    def communityAssociation(self, communities):
+        comSet = {"communities": len(communities)}
+        for i in range(len(communities)):
+            for node in communities[i]:
+                if comSet.get(node) == None:
+                    comSet[node] = [i+1]
+                else:
+                    comSet[node].append(i+1)
+        return comSet
+
     def getCommunities(self, threshold, communities = [], wq=None):
         if wq == None:
             wq = deepcopy(self.weakCliques)
             communities = []
         if len(wq) == 0:
-            return communities
+            return self.communityAssociation(communities)
         currentWQ = wq.pop(0)
         isCommunity = True
         try:
