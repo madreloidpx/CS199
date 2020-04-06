@@ -2,6 +2,7 @@ import sys
 import graph
 import time
 import random
+import math
 import networkx as nx
 import os.path as Path
 import matplotlib.pyplot as plt
@@ -209,6 +210,8 @@ class WCPMD:
         print("Communities computed in", str(end-start), "sec")
         if self.__auto == False:
             #self.__showCommunity(communities)
+            self.__aveColor(self.__randomColor(), self.__randomColor())
+            self.__aveColor(self.__randomColor(), self.__randomColor(), self.__randomColor())
             save = input("Save community data? [y/n]: ")
         else:
             save = 'y'
@@ -243,6 +246,21 @@ class WCPMD:
         color = lambda: random.randint(0,255)
         return '#%02X%02X%02X' % (color(),color(),color())
     
+    def __aveColor(self, *args):
+        aveColor = None
+        for color in args:
+            if aveColor == None:
+                aveColor = color
+            else:
+                aveColor = self.__aveHex(aveColor[1:3], color[1:3]) + self.__aveHex(aveColor[3:5], color[3:5]) + self.__aveHex(aveColor[5:], color[5:])
+        return "#" + aveColor
+    
+    def __aveHex(self, hex1, hex2):
+        int1 = int(hex1, 16)
+        int2 = int(hex2, 16)
+        ave = math.floor((int1 + int2)/2)
+        return '%02X' % (ave)
+
     def __showCommunity(self, communities): #I need to find a way to better represent overlapping nodes
         print("Generating graph...")
         overlappingNodes = set()
