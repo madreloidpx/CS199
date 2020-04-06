@@ -86,6 +86,8 @@ class Graph:
             print(error)
         if isCommunity == False:
             wq.insert(0, currentWQ)
+        elif len(currentWQ) < 3:
+            pass
         else:
             communities.append(currentWQ)
         return self.getCommunities(threshold, communities, wq)

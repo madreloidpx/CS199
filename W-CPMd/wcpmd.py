@@ -272,32 +272,9 @@ class WCPMD:
                     nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=[node], node_color = nodeColor)
             nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=self.__graph.graph.edges(), edge_color=self.__randomColor(), arrows=True)
             nx.draw_networkx_labels(self.__graph.graph, pos)
+            print("Graph generated.")
+            print("Graph will pop up in a window. Exit the window to continue...")
             plt.show()
+            print("Graph is closed.")
         except Exception as e:
             print(e)
-        # for i in range(len(communities)):
-        #     if len(communities[i]) <= 2:
-        #         edgeCommunities.append((communities[i][0], communities[i][1]))
-        #         continue
-        #     for j in range(i+1, len(communities)):
-        #         if len(communities[j]) <= 2:
-        #             if i == len(communities)-1:
-        #                 edgeCommunities.append((communities[j][0], communities[j][1]))
-        #             continue
-        #         intersection = (set(communities[i])).intersection(set(communities[j]))
-        #         overlappingNodes = overlappingNodes.union(intersection)
-        #     nodesToColor = [node for node in communities[i] if node not in overlappingNodes]
-        #     nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = self.__randomColor())
-        # overlappingNodes = list(overlappingNodes)
-        # if len(edgeCommunities) != 0:
-        #     nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=edgeCommunities, edge_color="black", arrows=True)
-        # if len(overlappingNodes) != 0:
-        #     nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
-        # plainEdges = [edge for edge in self.__graph.graph.edges() if edge not in edgeCommunities]
-        # nx.draw_networkx_nodes(self.__graph.graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = self.__randomColor())
-        # nx.draw_networkx_edges(self.__graph.graph, pos, edgelist=plainEdges, edge_color=self.__randomColor(), arrows=True)
-        # nx.draw_networkx_labels(self.__graph.graph, pos)
-        print("Graph generated.")
-        # print("Graph will pop up in a window. Exit the window to continue...")
-        # plt.show()
-        # print("Graph is closed.")
