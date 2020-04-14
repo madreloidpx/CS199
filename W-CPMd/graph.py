@@ -109,18 +109,32 @@ class Graph:
         return self.reduceCommunities(threshold, communities, wq)
     
     def shouldWeakCliqueMerge(self, WQu, WQv, threshold):
+        print("Checking at t =", threshold, WQu, WQv)
         commonNodes = self.getCommonNodes(WQu, WQv)
         if len(commonNodes) == 0:
             return False
+        if len(commonNodes) == len(WQu) or len(commonNodes) == len(WQv):
+            return True
         outWQu = self.getOutsideCommunityLinks(WQu)
         outWQv = self.getOutsideCommunityLinks(WQv)
         outWQuInWQv = self.getCommonNodes(outWQu, WQv)
         outWQvInWQu = self.getCommonNodes(outWQv, WQu)
-        mergeComputation = (len(commonNodes) + (len(outWQuInWQv) + len(outWQvInWQu))/2)/max(len(WQu), len(WQv))
-        if(threshold <= mergeComputation):
+        print("common nodes:", commonNodes)
+        print("out WQu", WQu, ">>>>", outWQu)
+        print("out WQv", WQv, ">>>>", outWQv)
+        print("out WQu in WQv >>>>", outWQuInWQv)
+        print("out WQv in WQu >>>>", outWQvInWQu)
+        mergeComputation = (len(commonNodes)/min(len(WQu), len(WQv)) + self.nodeRelation(len(outWQuInWQv), len(outWQvInWQu)))/2
+        print("threshold:", threshold, "computation:", mergeComputation, "threshold < mergeComputation:", threshold < mergeComputation)
+        if(threshold < mergeComputation):
             return True
         return False
     
+    def nodeRelation(self, x, y):
+        if x == 0 or y == 0:
+            return 0
+        return 1 - (x*x*x + x*x * y + x * y*y + y*y*y)/(x*x*x * y + 2 * x*x * y*y + x * y*y*y)
+
     def getOutsideCommunityLinks(self, weakClique):
         outsideLinks = []
         for node in weakClique:
