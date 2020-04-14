@@ -6,8 +6,8 @@ class Graph:
         self.graph = None
         self.mode = mode
         self.nodes = None
-        self.edges = None
-        self.weakCliques = None
+        # self.edges = None
+        self.weakCliques = []
 
         chooseMode = { #add more modes in the future
             "directed": self.createMultiDiGraph,
@@ -28,18 +28,20 @@ class Graph:
         self.nodes = sorted(nodes, key=lambda node: self.getNodeStrength(node), reverse=True)
     
     def addEdgesandWeakCliques(self):
-        edges = []
         for node in self.nodes:
+            edges = []
             for neighbor in nx.neighbors(self.graph, node):
                 edges.append((node, neighbor))
-        weakCliques = [wq for wq in [self.weakClique(edge) for edge in edges]]
-        weakCliques = sorted(weakCliques, key=len, reverse=True)
-        for wq in range(len(weakCliques)):
-            for i in weakCliques[wq+1:]:
-                if all(node in weakCliques[wq] for node in i):
-                    weakCliques.remove(i)
-        self.weakCliques = weakCliques
-        self.edges = edges
+            weakCliques = [wq for wq in [self.weakClique(edge) for edge in edges]]
+            weakCliques = sorted(weakCliques, key=len, reverse=True)
+            self.weakCliques.extend(weakCliques)
+        # weakCliques = sorted(weakCliques, key=len, reverse=True)
+        # for wq in range(len(weakCliques)):
+        #     for i in weakCliques[wq+1:]:
+        #         if all(node in weakCliques[wq] for node in i):
+        #             weakCliques.remove(i)
+        # self.weakCliques = weakCliques
+        # self.edges = edges
 
     def getNodeStrength(self, node):
         neighbors = nx.neighbors(self.graph, node)
@@ -64,13 +66,27 @@ class Graph:
                 else:
                     comSet[node].append(i+1)
         return comSet
+    
+    def getCommunities(self, threshold, communities = None):
+        if communities == None:
+            communities = self.reduceCommunities(threshold)
+        currCommunities = self.reduceCommunities(threshold, [], deepcopy(communities))
+        print("Communities:", len(communities), communities)
+        print("CurrCommunities:", len(currCommunities), currCommunities)
+        print(len(currCommunities) < len(communities))
+        if len(currCommunities) < len(communities) and len(communities) != 0:
+            print("Rerun")
+            return self.getCommunities(threshold, currCommunities)
+        else:
+            return self.communityAssociation(currCommunities)
 
-    def getCommunities(self, threshold, communities = [], wq=None):
+
+    def reduceCommunities(self, threshold, communities = [], wq=None):
         if wq == None:
             wq = deepcopy(self.weakCliques)
             communities = []
         if len(wq) == 0:
-            return self.communityAssociation(communities)
+            return communities
         currentWQ = wq.pop(0)
         isCommunity = True
         try:
@@ -90,7 +106,7 @@ class Graph:
             pass
         else:
             communities.append(currentWQ)
-        return self.getCommunities(threshold, communities, wq)
+        return self.reduceCommunities(threshold, communities, wq)
     
     def shouldWeakCliqueMerge(self, WQu, WQv, threshold):
         commonNodes = self.getCommonNodes(WQu, WQv)
