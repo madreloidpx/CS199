@@ -1,158 +1,165 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-import random
+import sys
+import inspect
+import wcpmd
+import nmi
 
-def readFile(filename, delimiter=","):
-    f = open(filename, "r")
-    data = []
-    for line in f:
-        contents = line.split(delimiter)
-        for i in range(len(contents)):
-                contents[i] = contents[i].strip()
-        data.append(contents)
-    return data
+def help():
+    print("""
+    To run interactive CLI, run 'python3 main.py'.
+    Note: CLI currently does not have an NMI checker.
+    
+    -h, --help, help: run help
 
-def createEdgeData(data):
-    edges = []
-    for line in data:
-        if len(line) == 2: edges.append((line[0], line[1]))
-        if len(line) == 3: edges.append((line[0], line[1], line[2]))
-    return edges
+    generateCommunity: generates a community file data given the graph data and a threshold.
+    --run: Runs the CLI for generating communities and accepts user input.
+    -gd: Required. Accepts graph data directory. Currently only accepts tabs as delimiter.
+    -t: Required. Sets the threshold.
+    -rl: Sets recursion limit.
+    -out: Filename for resulting community data. Default is 'community.txt'
 
-def createUndirectedGraph(graphData):
-    print("Undirected Network")
-    G = nx.Graph()
-    G.add_edges_from(graphData["edge_data"])
-    return G
+    getCommunityNMI: gets the nmi of a community file based on its true community file.
+    -cf: Required. Accepts the community file directory
+    -tcf: Required. Accepts the true community file directory
+    -out: Filename for results file. If not provided, outputs the results in the terminal.
+    Note: Currently dependent in 'Overlapping-NMI' in getting the nmi results.
 
-def createMultiDiGraph(graphData):
-    print("Directed Network")
-    G = nx.MultiDiGraph()
-    G.add_edges_from(graphData["edge_data"])
-    return G
+    iterateThreshold: generates communities based on a range of thresholds and outputs a file with NMI values.
+    -gd: Required. Accepts graph data directory. Currently only accepts tabs as delimiter.
+    -tcf: Required. Accepts the true community file directory
+    -start: Initial value for threshold. Default value is 0.
+    -end: Ending range for threshold. Default value is 1.
+    -step: Threshold steps. Default is 0.1.
+    -rl: Sets recursion limit.
+    -out: Filename for resulting NMI data. Default is 'nmi.txt'
+    """)
 
-def createGraph(graphData, mode="undirected"):
-    chooseMode = {
-        "undirected": createUndirectedGraph,
-        "directed": createMultiDiGraph,
+def getMode(_mode):
+    mode = {
+        "generateCommunity": generateCommunity,
+        "getCommunityNMI": getCommunityNMI,
+        "iterateThreshold": iterateThreshold,
     }
-    func = chooseMode.get(mode, lambda: "Invalid network type")
-    return func(graphData)
+    return mode.get(_mode)
 
-def getNodeStrength(graph, node):
-    neighbors = nx.neighbors(graph, node)
-    all_neighbors = nx.all_neighbors(graph, node)
-    return len(list(all_neighbors)) - len(list(neighbors))
-
-def weakClique(graph, nodePair):
-    source, drain = nodePair
-    neighborSource = list(nx.neighbors(graph, source))
-    neighborDrain = list(nx.neighbors(graph, drain))
-    allNeighborSource = list(nx.all_neighbors(graph, source))
-    incomingLinkSource = [node for node in allNeighborSource if node not in neighborSource]
-    commonNeighbors = [node for node in neighborDrain if node in incomingLinkSource]
-    return [source] + commonNeighbors + [drain]
-
-def getOutsideCommunityLinks(graph, weakClique):
-    outsideLinks = []
-    for node in weakClique:
-        neighbors = list(nx.neighbors(graph, node))
-        for n in neighbors:
-            if n not in weakClique and n not in outsideLinks:
-                outsideLinks.append(n)
-    return outsideLinks
-
-def getCommonNodes(u, v):
-    commonNodes = []
-    for node in u:
-        if node in v:
-            commonNodes.append(node)
-    return commonNodes
-
-def shouldWeakCliqueMerge(graph, WQu, WQv, threshold):
-    commonNodes = getCommonNodes(WQu, WQv)
-    if len(commonNodes) == 0:
-        return False
-    outWQu = getOutsideCommunityLinks(graph, WQu)
-    outWQv = getOutsideCommunityLinks(graph, WQv)
-    outWQuInWQv = getCommonNodes(outWQu, WQv)
-    outWQvInWQu = getCommonNodes(outWQv, WQu)
-    mergeComputation = (len(commonNodes) + (len(outWQuInWQv) + len(outWQvInWQu))/2)/max(len(WQu), len(WQv))
-    if(threshold <= mergeComputation):
-        return True
-    return False
-
-def weakCliqueMerge(WQu, WQv):
-    diff = set(WQv) - set(WQu)
-    return list(set(WQu).union(diff))
-
-def runMerge(graph, weakCliques, threshold, communities = []):
-    if len(weakCliques) == 0:
-        return communities
-    currentWQ = weakCliques.pop(0)
-    isCommunity = True
-    for wq in weakCliques:
-        if shouldWeakCliqueMerge(graph, currentWQ, wq, threshold) == True:
-            currentWQ = weakCliqueMerge(currentWQ, wq)
-            weakCliques.remove(wq)
-            isCommunity = False
-    if isCommunity == False:
-        weakCliques.insert(0, currentWQ)
+def generateKwargs(commands, modeList, **kwargs):
+    try:
+        currCommand = commands.pop(0)
+    except:
+        print("Arguments missing.")
+        exit(0)
+    func = modeList(currCommand)
+    if func == None:
+        print("Command", currCommand, "does not exist.")
+        exit(0)
+    argsNeeded = len(inspect.getargspec(func).args)
+    if argsNeeded == 0:
+        func()
+        exit(0)
+    if argsNeeded == 1:
+        try:
+            arg = commands.pop(0)
+            if arg[0] == "-":
+                raise Exception
+            kwargs.update(func(arg))
+        except:
+            print("Missing arguments.")
+            exit(0)
+    if len(commands) != 0:
+        return generateKwargs(commands, modeList, **kwargs)
     else:
-        communities.append(currentWQ)
-    return runMerge(graph, weakCliques, threshold, communities)
+        return kwargs
 
-def colorGraph(graph, communities):
-    overlappingNodes = set()
-    edgeCommunities = []
-    pos = nx.spring_layout(graph)
-    for i in range(len(communities)):
-        if len(communities[i]) <= 2:
-            edgeCommunities.append((communities[i][0], communities[i][1]))
-            continue
-        for j in range(i+1, len(communities)):
-            if len(communities[j]) <= 2:
-                if i == len(communities)-1:
-                    edgeCommunities.append((communities[j][0], communities[j][1]))
-                continue
-            intersection = (set(communities[i])).intersection(set(communities[j]))
-            overlappingNodes = overlappingNodes.union(intersection)
-        nodesToColor = [node for node in communities[i] if node not in overlappingNodes]
-        nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=nodesToColor, node_color = randomColor())
-    overlappingNodes = list(overlappingNodes)
-    if len(edgeCommunities) != 0:
-        nx.draw_networkx_edges(graph, pos, edgelist=edgeCommunities, edge_color=randomColor(), arrows=True)
-    if len(overlappingNodes) != 0:
-        nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = randomColor())
-    plainEdges = [edge for edge in graph.edges() if edge not in edgeCommunities]
-    nx.draw_networkx_nodes(graph, pos, cmap=plt.get_cmap('jet'), nodelist=overlappingNodes, node_color = randomColor())
-    nx.draw_networkx_edges(graph, pos, edgelist=plainEdges, edge_color=randomColor(), arrows=True)
-    nx.draw_networkx_labels(graph, pos)
-    plt.show()
-    return graph
+def generateCommunity(commands):
+    kwargs = generateKwargs(commands, getGenerateCommunityModes)
+    kwargs.update({ "auto": True })
+    run = wcpmd.WCPMD(**kwargs)
+    run.initialize()
+    run.showGraphSpecificThreshold()
 
-def randomColor():
-    color = lambda: random.randint(0,255)
-    return '#%02X%02X%02X' % (color(),color(),color())
+def getGenerateCommunityModes(_mode):
+    mode = {
+        "--run": runGenerateCommunity,
+        "-gd": setGraphData,
+        "-t": setThreshold,
+        "-rl": setRecursionLimit,
+        "-out": setFilename,
+    }
+    return mode.get(_mode)
+
+def runGenerateCommunity():
+    run = wcpmd.WCPMD()
+    run.initialize()
+    run.showGraphSpecificThreshold()
+
+def setGraphData(filedir):
+    return { "graphDir": filedir }
+
+def setThreshold(threshold):
+    return { "threshold": threshold }
+
+def setRecursionLimit(recursionLimit):
+    return { "recursionLimit": recursionLimit }
+
+def setFilename(filename):
+    return { "filename": filename }
+
+def getCommunityNMI(commands):
+    kwargs = generateKwargs(commands, getCommunityNMIModes)
+    output = nmi.getNMI(**kwargs)
+    nmi.saveNMIData(kwargs.get("filename"), output)
+
+def getCommunityNMIModes(_mode):
+    mode = {
+        "-cf": setCommunityFileDir,
+        "-tcf": setTrueCommunityFileDir,
+        "-out": setFilename,
+    }
+    return mode.get(_mode)
+
+def setCommunityFileDir(filename):
+    return { "communityFile": filename }
+
+def setTrueCommunityFileDir(filename):
+    return { "trueCommunityFile": filename }
+
+def iterateThreshold(commands):
+    kwargs = generateKwargs(commands, getIterateThresholdModes)
+    kwargs.update({ "auto": True })
+    run = wcpmd.WCPMD(**kwargs)
+    run.initialize()
+    nmi.iterThreshold(run, **kwargs)
+
+
+def getIterateThresholdModes(_mode):
+    mode = {
+        "-gd": setGraphData,
+        "-rl": setRecursionLimit,
+        "-out": setFilename,
+        "-start": setStartRange,
+        "-end": setEndRange,
+        "-step": setStep,
+        "-tcf": setTrueCommunityFileDir,
+    }
+    return mode.get(_mode)
+
+def setStartRange(start):
+    return { "start": start }
+
+def setEndRange(end):
+    return { "end": end }
+
+def setStep(step):
+    return { "step": step }
 
 if __name__ == '__main__':
-    data = readFile("test3.txt", '\t')
-    edgeData = createEdgeData(data)
-    graphData = {"edge_data": edgeData}
-    graph = createGraph(graphData, "directed")
-    nodes = list(nx.nodes(graph))
-    nodes = sorted(nodes, key=lambda node: getNodeStrength(graph, node), reverse=True)
-    nodePairs = []
-    for node in nodes:
-        for neighbor in nx.neighbors(graph, node):
-            nodePairs.append((node, neighbor))
-    weakCliques = [wq for wq in [weakClique(graph, np) for np in nodePairs]]
-    weakCliques = sorted(weakCliques, key=len, reverse=True)
-    for wq in range(len(weakCliques)):
-        for i in weakCliques[wq+1:]:
-            if all(node in weakCliques[wq] for node in i):
-                weakCliques.remove(i)
-    print("weak cliques:", weakCliques)
-    communities = runMerge(graph, weakCliques, 0.7)
-    print("communities:", communities)
-    graph = colorGraph(graph, communities)
+    if len(sys.argv) == 1:
+        wcpmd.WCPMD().run()
+    elif len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help" or sys.argv[1] == "help"):
+        help()
+    else:
+        func = getMode(sys.argv[1])
+        if func == None:
+            print("Invalid command.")
+            exit(0)
+        commands = sys.argv[2:]
+        func(commands)
